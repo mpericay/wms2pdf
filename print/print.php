@@ -254,7 +254,7 @@ function _createpdf() {
             // transform to image coordinates
             $x = (int) ( ($feature->x - $bbox[0]) / $scale_x );
             $y = (int) ( ($bbox[3] - $feature->y) / $scale_y );
-            $icon = "../img/iconPedraseca.png";
+            $icon = "img/iconPedraseca.png";
             $im->load_image($icon,$x-39,$y-34,29,49);
         }
 
@@ -267,7 +267,7 @@ function _createpdf() {
 
         // create PDF writer
         $pdf =& new Cezpdf("a4", "landscape");
-        $pdf->selectFont('../fonts/Helvetica.afm');
+        $pdf->selectFont('fonts/Helvetica.afm');
         $pdf->ezSetMargins($page_margin, $page_margin, $page_margin, $page_margin);
         $pdf->setLineStyle(1);
 
@@ -305,7 +305,7 @@ function _createpdf() {
         $footerheight =($printData->printoptions->footerheight ? $printData->printoptions->footerheight : $north_image_height);
         $north_image_left = $legend_frame_left + $padding+40;
         $north_image_bottom = $legend_frame_bottom + $padding + 60;
-        $pdf->addJpegFromFile("../img/op.jpg", $north_image_left, $north_image_bottom, $north_image_width, $north_image_height);
+        $pdf->addJpegFromFile("img/op.jpg", $north_image_left, $north_image_bottom, $north_image_width, $north_image_height);
         $legend_frame_stop = $north_image_bottom + $footerheight + $padding;
 
 
@@ -315,7 +315,7 @@ function _createpdf() {
         $footerheight =($printData->printoptions->footerheight ? $printData->printoptions->footerheight : $north_image_height);
         $north_image_left = $legend_frame_left + $padding;
         $north_image_bottom = $legend_frame_bottom + $padding;
-        $pdf->addJpegFromFile("../img/north2.jpg", $north_image_left, $north_image_bottom, $north_image_width, $north_image_height);
+        $pdf->addJpegFromFile("img/north2.jpg", $north_image_left, $north_image_bottom, $north_image_width, $north_image_height);
         $legend_frame_stop = $north_image_bottom + $footerheight + $padding;
 
         // coordinates
