@@ -21,13 +21,11 @@
 require_once("lib/functions.php");
 require_once("lib/class.imgmerger.php");
 require_once("lib/class.ezpdf.php");
-require_once("../config.php");
 
-//look for enviroment variable or take config dir
-if(isset($_ENV["TEMP"])) $tmpdir = $_ENV["TEMP"];
+//look for enviroment variable or use /tmp
+//if(isset($_ENV["TEMP"])) $tmpdir = $_ENV["TEMP"];
 //if (!$tmpdir) if(isset($_ENV["TMP"])) $tmpdir = $_ENV["TMP"];
-//if (!$tmpdir) $tmpdir = $sConfig["tmp_folder"];
-$tmpdir = "/usr/share/wikipedra/tmp/";
+if (!$tmpdir) $tmpdir = "C:\Windows\Temp\wms2pdf\\";
 
 // Output buffer
 $buffer = Array();
@@ -37,14 +35,13 @@ $count = 0;
 
 
 //delete the old data
-_clearCache($tmpdir);
+//_clearCache($tmpdir);
 
 //force download the PDF
 if (isset($_REQUEST["pdfUrl"])) {
     _forceDownload($tmpdir,$_REQUEST["pdfUrl"]);
     die();
 }
-
 
 // nothing recieved?
 if (isset($_REQUEST['printData'])) {
@@ -93,18 +90,13 @@ function _createpdf() {
     for ($i=0; $i<count($servers); $i++) {
         $currentServer = $servers[$i];
         $url = $currentServer->url;
-		//$url = str_replace("http://www.catpaisatge.net/cgi-bin/mapserv?map=/var/www/catpaisatge.net/datos/web/wikipedra/maps/", "http://wikipedra.catpaisatge.net/wms52/odp/barraques/", $url);
-        //$url = str_replace("http://www.catpaisatge.net/cgi-bin/mapserv?MAP=%2Fvar%2Fwww%2Fcatpaisatge.net%2Fdatos%2Fweb%2Fwikipedra%2Fmaps%2F", "http://wikipedra.catpaisatge.net/wms52/odp/barraques/", $url);
-		//$url = str_replace("http://www.catpaisatge.net/cgi-bin/mapserv?map=%2Fvar%2Fwww%2Fcatpaisatge.net%2Fdatos%2Fweb%2Fwikipedra%2Fmaps%2F", "http://wikipedra.catpaisatge.net/wms52/odp/barraques/", $url);
-        //$url = str_replace(".map&", "?", $url);
-        //if($i == 2) die($url);
         $services[]=$url;
     }
 
     // check GD support
-    $im =& new ImageMerger($tmpdir);
-    if ($im->ready) {
+    $im = new ImageMerger($tmpdir);
 
+    if ($im->ready) {
     // get smallest image size
         $tmp = 0;
         $iconn = 0;
@@ -124,8 +116,6 @@ function _createpdf() {
         // get images size
         $map_image_width = get_url_parameter($services[$iconn], "WIDTH");
         $map_image_height = get_url_parameter($services[$iconn], "HEIGHT");
-
-        //var_dump($printData->servers);die();
 
         $image_factor_width = ($page_width - $page_margin - $legend_min_width - $margin) / $map_image_width;
         $image_factor_height = $page_height / $map_image_height;
@@ -460,7 +450,6 @@ function _createpdf() {
             }
 
         }
-
 
         // static legend
         if ($printData->legendstyle == "nomal") {

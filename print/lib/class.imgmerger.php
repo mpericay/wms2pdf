@@ -7,7 +7,7 @@
 //
 // Copyright (c) 2008 by Geodata Sistemas S.L.
 // http://www.geodata.es
-// Written by Xose P�rez and Mart� Pericay
+// Written by Xose Pérez and Martí Pericay
 //
 // Image merger
 //
@@ -35,6 +35,8 @@ class ImageMerger {
       $this->gd = gd_info();
       $this->ready = true;
       $this->tmpdir = $tmpdir;
+    } else {
+    	die("No GD support");
     }
 
   }
