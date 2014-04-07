@@ -241,25 +241,6 @@ function _createpdf() {
 
         }
 
-        //print_r($printData);die();
-
-
-
-        if ($printData->printFeature) {
-
-            $scale_x = ($bbox[2] - $bbox[0]) / 1070;
-            $scale_y = ($bbox[3] - $bbox[1]) / 1070;
-            //var_dump($scale_x);die();
-            $feature = $printData->printFeature;
-            // transform to image coordinates
-            $x = (int) ( ($feature->x - $bbox[0]) / $scale_x );
-            $y = (int) ( ($bbox[3] - $feature->y) / $scale_y );
-            $icon = "img/iconPedraseca.png";
-            $im->load_image($icon,$x-39,$y-34,29,49);
-        }
-
-
-
         // get final JPG
         //var_dump($im->load_image($image));
         //if ($file = $im->get_image(90)) {
@@ -296,17 +277,14 @@ function _createpdf() {
         $y = _addTextWrapper($pdf, $x, $y, $max_width, 14, $title, 'center');
         $legend_image_start = $y;
 
-
-
-
-        // escut obpservatori
-        $north_image_width = 115;
-        $north_image_height = 132;
-        $footerheight =($printData->printoptions->footerheight ? $printData->printoptions->footerheight : $north_image_height);
-        $north_image_left = $legend_frame_left + $padding+40;
-        $north_image_bottom = $legend_frame_bottom + $padding + 60;
-        $pdf->addJpegFromFile("img/op.jpg", $north_image_left, $north_image_bottom, $north_image_width, $north_image_height);
-        $legend_frame_stop = $north_image_bottom + $footerheight + $padding;
+        // logo
+        $logo_image_width = 173;
+        $logo_image_height = 49;
+        $footerheight =($printData->printoptions->footerheight ? $printData->printoptions->footerheight : $logo_image_height);
+        $logo_image_left = $legend_frame_left + $padding;
+        $logo_image_bottom = $legend_frame_bottom + $padding + 60;
+        $pdf->addJpegFromFile("img/stacoloma.jpg", $logo_image_left, $logo_image_bottom, $logo_image_width, $logo_image_height);
+        $legend_frame_stop = $logo_image_bottom + $footerheight + $padding;
 
 
         // north image
@@ -333,10 +311,10 @@ function _createpdf() {
             $text = $printData->locale->coordinates.': '.intval($bbox[0]).", ".intval($bbox[1]);
             $y = _addTextWrapper($pdf, $x, $y, $w, 8, $text, 'left');
         }
-        //if ($printData->printoptions->showreferencesystem) {
-        $text ='Sistema de referència  EPSG : 23031 ';
-        $y = _addTextWrapper($pdf, $x, $y-170, $w, 8, $text, 'left');
-        //}
+        if ($printData->printoptions->showreferencesystem) {
+	        $text ='Sistema de referència  EPSG : 23031 ';
+	        $y = _addTextWrapper($pdf, $x, $y-170, $w, 8, $text, 'left');
+        }
         if (($printData->printoptions->scalebar) == "numeric") {
             $scale = intval(1000 * ($bbox[2]-$bbox[0]) / ($map_image_width / $page_factor));
             $text = $printData->locale->mapscale.' ~ 1:'._significant($scale,2);
@@ -353,7 +331,7 @@ function _createpdf() {
 
         // dynamic legend
         $continue_legend = Array();
-        //print_r($printData->legendstyle);die();
+
         if ($printData->legendstyle=="none") {
             $printData->legendstyle="embedded";
         }
@@ -677,70 +655,6 @@ function _get_file_type($file) {
     }
 }
 
-function _create_refmap_image($refmap_file,$refmap_bbox,$view_bbox,$output_format) {
-    global $tmpdir;
-
-    $file = $refmap_file;
-
-    $type = _get_file_type($file);
-
-    $refmap_bbox = explode(",",$refmap_bbox);
-    $view_bbox = explode(",",$view_bbox);
-
-    $view_minx = $view_bbox[0] - $refmap_bbox[0];
-    $view_miny = $view_bbox[3] - $refmap_bbox[3];
-
-    $view_maxx = $view_bbox[2] - $refmap_bbox[0];
-    $view_maxy = $view_bbox[1] - $refmap_bbox[3];
-
-    $distx_refmap = $refmap_bbox[2] - $refmap_bbox[0];
-    $disty_refmap = $refmap_bbox[1] - $refmap_bbox[3];
-
-    list($width, $height) = getimagesize($file);
-
-    switch($type) {
-        case "gif":
-            $tmp = @imagecreatefromgif($file);
-            break;
-        case "jpg":
-            $tmp = @imagecreatefromjpeg($file);
-            break;
-        case "png":
-            $tmp = @imagecreatefrompng($file);
-            break;
-    }
-
-
-
-    if ($tmp) {
-    //add the rectangle of the view
-        $minx = $view_minx * $width / $distx_refmap;
-        $miny = $height - $view_miny * $height / $disty_refmap;
-        $maxx = $view_maxx * $width / $distx_refmap;
-        $maxy = $height - $view_maxy * $height / $disty_refmap;
-
-        $color = imagecolorallocate($tmp, 255, 0, 0);
-        imagerectangle($tmp,$minx,$miny,$maxx,$maxy,$color);
-
-        // create local copy
-        switch($output_format) {
-            case "png":
-                $file = secure_tmpname('.png','tmp',$tmpdir);
-                if (!imagepng($tmp, $file)) $file="";
-                imagedestroy($tmp);
-                break;
-            case "jpg":
-                $file = secure_tmpname('.jpg','tmp',$tmpdir);
-                if (!imagejpeg($tmp, $file)) $file="";
-                imagedestroy($tmp);
-                break;
-        }
-
-        return $file;
-
-    }
-}
-
 
 function _create_graphic_scalebar($scale,$scalebar_width,$scalebar_height) {
     global $tmpdir;
@@ -853,16 +767,5 @@ function _forceDownload($dir,$fileName) {
     header('Expires: 0');
     echo $data;
 }
-
-
-
-
-
-
-
-
-
-
-
 
 ?>
