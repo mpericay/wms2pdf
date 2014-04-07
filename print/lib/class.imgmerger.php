@@ -56,7 +56,7 @@ class ImageMerger {
         if ($this->gd["GIF Read Support"]) $tmp = imagecreatefromgif($file);
         break;
       case 2: // JPEG
-        if ($this->gd["JPEG Support"]) $tmp = imagecreatefromjpeg($file);
+        if ($this->gd["JPG Support"]) $tmp = imagecreatefromjpeg($file);
         break;
       case 3: // PNG
         if ($this->gd["PNG Support"]) $tmp = imagecreatefrompng($file);
