@@ -15,7 +15,7 @@ function getPDFLink(data) {
 
     if (data.error == 0) {
         //window.open(data.url,"_blank","menubar=no,toolbar=no,scrollbars=no,status=no,resizable=no");
-        location.href= "print/print.php?pdfUrl="+data.url;
+        location.href= "print/print2.php?pdfUrl="+data.url;
     //window.location = this.printServerUrl+"?pdfUrl="+data.url;
     } else {
         alert("Error creating pdf: " + data.error);
@@ -31,7 +31,7 @@ $( document ).ready(function() {
 		//					     .replace(/\s*(<\/[^>]+>)/g, '$1');
         $.ajax({
             type: "POST",
-            url: "print/print.php",
+            url: "print/print2.php",
             data: { printData: JSON.stringify(json)},
             contentType: "application/x-www-form-urlencoded",
             dataType: "json",
