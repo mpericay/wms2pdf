@@ -75,6 +75,7 @@ $width = $height; //only for landscape!!!
 // the Image() method recognizes the alpha channel embedded on the image:
 //$pdf->Image('http://mapcache.icc.cat/map/bases_noutm/service?FORMAT=image%2Fjpeg&EXCEPTIONS=application%2Fvnd.ogc.se_xml&SRS=EPSG%3A4326&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&LAYERS=topo&BBOX=2.17462439453%2C41.4216758916%2C2.23401560547%2C41.4810671025&WIDTH=1024&HEIGHT=1024', PDF_MARGIN_LEFT, PDF_MARGIN_TOP, $height, $width, '', '', '', false, 1024);
 //$pdf->Image('http://si.progess.com:8008/geoserver/wms?LAYERS=mediacions_obertes&FORMAT=image%2Fpng&TRANSPARENT=true&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&SRS=EPSG%3A4326&BBOX=2.17462439453%2C41.4216758916%2C2.23401560547%2C41.4810671025&WIDTH=1024&HEIGHT=1024', PDF_MARGIN_LEFT, PDF_MARGIN_TOP, $height, $width, '', '', '', false, 1024);
+$pdf->writeMap($height, $width);
 $pdf->setPageMark();
 
 //write the boxes
@@ -94,17 +95,16 @@ $y = $pdf->GetY();
 $pdf->MultiCell(0, $height, '', 1, 'C', 0, 1, '', '', true, 0, false, true, 0);
 
 /* --- START LEGEND BLOCK ---*/
-//write Logo (46pt above bottom)
+//fixed elements: write Logo (46pt above bottom)
 $pdf->Image('img/stacoloma.jpg', $x + 10, $height - 30, 58, 16);
-//write north and texts 
+//fixed elements: write north and texts 
 $pdf->writeNorth($x + 5, $height - 13);
-//reduce the page break by the 46pt (if the legend doesn't fit, don't write over logo and north)
+//reduce the page break by the 46pt (if the legend doesn't fit, we mustn't write over logo and north)
 $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM + 46);
-//write Legend and Title
-//return to the beginning of the legend to start writing
-$pdf->SetXY($x,$y);
+//dynamic elements: write Legend and Title
+$pdf->SetXY($x,$y); //return to the beginning of the legend to start writing dynamically
 if($title = $printData->map->title) $pdf->writeTitle($title, 15);
-$pdf->writeLegend($x, $y + 20, $height - 43);
+$pdf->writeLegend();
 /* --- END LEGEND BLOCK ---*/
 
 //Close and output PDF document
