@@ -5,14 +5,16 @@
 <title>WMS2PDF print demo</title>
 </head>
 <body>
-<button type="button">Print</button><br/>
-<!-- <textarea id="exampleJson" rows="30" cols="140">
-</textarea>-->
+<h3>Demo servei PrintMap Progess</h3>
+Cal cridar el geoservei print/print2.php enviant el paràmetre 'printData' amb el següent JSON per POST (veure funció sendJson). La crida retorna un enllaç al document PDF (funció getPDFLink).<br>
+Per veure impressió resultant a PDF prémer: <button type="button">Cridar servei</button><br/>
+<textarea readonly id="seeJson" rows="34" cols="240">
+</textarea>
 <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
 <script src="print/examples/progess.js"></script>
 <script>
-function getPDFLink(data) {
 
+function getPDFLink(data) {
     if (data.error == 0) {
         //window.open(data.url,"_blank","menubar=no,toolbar=no,scrollbars=no,status=no,resizable=no");
         location.href= "print/print2.php?pdfUrl="+data.url;
@@ -23,12 +25,7 @@ function getPDFLink(data) {
 
 }
 
-$( document ).ready(function() {
-    $(":button").click(function() {
-        //var json = $('textarea#exampleJson').val();
-        //json = $.trim(json).replace(/\s*[\r\n]+\s*/g, '\n')
-		//					     .replace(/(<[^\/][^>]*>)\s*/g, '$1')
-		//					     .replace(/\s*(<\/[^>]+>)/g, '$1');
+function sendJson() {
         $.ajax({
             type: "POST",
             url: "print/print2.php",
@@ -42,6 +39,13 @@ $( document ).ready(function() {
                 alert(errMsg);
             }
         });
+}
+
+$( document ).ready(function() {
+    var str = JSON.stringify(json, undefined, 2); // indentation level = 2
+    $("#seeJson").html(str);
+    $(":button").click(function() {
+       sendJson(); 
     });
 });
 

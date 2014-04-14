@@ -231,9 +231,6 @@ function _createpdf() {
 				$image = set_url_parameter($image, "WIDTH", ($map_image_width * $qf ));
                 $image = set_url_parameter($image, "HEIGHT", ($map_image_height * $qf ));
                 $image = set_url_parameter($image, "BBOX", $sbbox);
-                if(strrpos($image, "barraques")>0) {
-                    set_url_parameter($image, "FORMAT", "image/png");
-                }
 
                 $im->load_image($image);
 
@@ -347,9 +344,11 @@ function _createpdf() {
                 $currentServer = $servers[$i];
                 for($j=0; $j < sizeof($servers[$i]->layers); $j++) {
                     $layers[]=$servers[$i]->layers[$j]->title;
+                    //print_r("aaaa".$servers[$i]->layers[$j]->legend);
                     $legends[]=$servers[$i]->layers[$j]->legend;
 
                 }
+                //die();
 
             }
 
