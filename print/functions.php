@@ -25,8 +25,7 @@ function saveFile($tmpdir, $pdf) {
 }
 
 function correctBbox($bbox, $windowRatio, $fixedScale = false) {
-
-        if ($fixedScale) {
+    if ($fixedScale) {
             $cenX = ($bbox[0]+$bbox[2])/2;
             $cenY = ($bbox[1]+$bbox[3])/2;
             $difX = (($fixedScale/1000)*($map_image_width/3))/2;
@@ -36,23 +35,23 @@ function correctBbox($bbox, $windowRatio, $fixedScale = false) {
             $bbox[1] = $cenY - $difY;
             $bbox[2] = $cenX + $difX;
             $bbox[3] = $cenY + $difY;
-        }
+    }
 
-        $bbox_cx = ($bbox[0]+$bbox[2])/2;
-        $bbox_cy = ($bbox[1]+$bbox[3])/2;
-        $bbox_w = ($bbox[2]-$bbox[0])/2;
-        $bbox_h = ($bbox[3]-$bbox[1])/2;
+    $bbox_cx = ($bbox[0]+$bbox[2])/2;
+    $bbox_cy = ($bbox[1]+$bbox[3])/2;
+    $bbox_w = ($bbox[2]-$bbox[0])/2;
+    $bbox_h = ($bbox[3]-$bbox[1])/2;
 
-        // correct map ratio
-        //$map_window_ratio = $map_image_width / $page_height;
-        $bbox_h = $bbox_w / $windowRatio;
+    // correct map ratio
+    //$map_window_ratio = $map_image_width / $page_height;
+    $bbox_h = $bbox_w / $windowRatio;
 
-        $bbox[0] = $bbox_cx-$bbox_w;
-        $bbox[1] = $bbox_cy-$bbox_h;
-        $bbox[2] = $bbox_cx+$bbox_w;
-        $bbox[3] = $bbox_cy+$bbox_h;
+    $bbox[0] = $bbox_cx-$bbox_w;
+    $bbox[1] = $bbox_cy-$bbox_h;
+    $bbox[2] = $bbox_cx+$bbox_w;
+    $bbox[3] = $bbox_cy+$bbox_h;
 
-        return join(",",$bbox);	
+    return join(",",$bbox);	
 }
 
 function get_url_parameter($url, $name, $default = null) {
@@ -65,7 +64,7 @@ function get_url_parameter($url, $name, $default = null) {
 function set_url_parameter($url, $name, $value) {
   $parsed_url = parse_url($url);
   parse_str($parsed_url['query'],$parameters);
-	$parameters[$name] = $value;
+  $parameters[$name] = $value;
   $parsed_url['query'] = http_implode($parameters);
   $url = glue_url($parsed_url);
   return $url;
