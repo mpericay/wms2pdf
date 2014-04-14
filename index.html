@@ -6,7 +6,7 @@
 </head>
 <body>
 <h3>Demo servei PrintMap Progess</h3>
-Cal cridar el geoservei print/print2.php enviant el paràmetre 'printData' amb el següent JSON per POST (veure funció sendJson). La crida retorna un enllaç al document PDF (funció getPDFLink).<br>
+Cal cridar el geoservei print/print.php enviant el paràmetre 'printData' amb el següent JSON per POST (veure funció sendJson). La crida retorna un enllaç al document PDF (funció getPDFLink).<br>
 Per veure impressió resultant a PDF prémer: <button type="button">Cridar servei</button><br/>
 <textarea readonly id="seeJson" rows="34" cols="240">
 </textarea>
@@ -17,7 +17,7 @@ Per veure impressió resultant a PDF prémer: <button type="button">Cridar serve
 function getPDFLink(data) {
     if (data.error == 0) {
         //window.open(data.url,"_blank","menubar=no,toolbar=no,scrollbars=no,status=no,resizable=no");
-        location.href= "print/print2.php?pdfUrl="+data.url;
+        location.href= "print/print.php?pdfUrl="+data.url;
     //window.location = this.printServerUrl+"?pdfUrl="+data.url;
     } else {
         alert("Error creating pdf: " + data.error);
@@ -28,7 +28,7 @@ function getPDFLink(data) {
 function sendJson() {
         $.ajax({
             type: "POST",
-            url: "print/print2.php",
+            url: "print/print.php",
             data: { printData: JSON.stringify(json)},
             contentType: "application/x-www-form-urlencoded",
             dataType: "json",
