@@ -6,7 +6,8 @@ require_once('config.php');
 require_once('functions.php');
 require_once('class.wms2pdf.php');
 
-$tmpdir = _TMP_DIR;
+/* tmp directory */
+$tmpdir = "C:\Windows\Temp\wms2pdf\\";
 //look for enviroment variable or use /tmp
 //if(isset($_ENV["TEMP"])) $tmpdir = $_ENV["TEMP"];
 //if (!$tmpdir) if(isset($_ENV["TMP"])) $tmpdir = $_ENV["TMP"];
@@ -26,7 +27,10 @@ if (isset($_REQUEST['printData'])) {
     $printData = json_decode($content);
     //TODO: instead of die, output error
     if(!$printData->map) die("No JSON provided");
-    else $pdf->setServers($printData->map->servers);
+    else {
+    	$pdf->setServers($printData->map->servers);
+    	$pdf->overwriteConfig($printData->map->config);
+    }
 } else {
     $result = array("error" => "-1");
     print_r(json_encode($result));
@@ -85,7 +89,7 @@ $pdf->SetLineWidth(0.3);
 $pdf->MultiCell($width, $height, '', 1, 'J', 0, 0, '', '', true, 0, false, true, 0);
 
 // write the splitter
-$pdf->MultiCell(_BOX_GAP, $height, '', 0, 'J', 0, 0, '', '', false, 0, false, true, 0);
+$pdf->MultiCell($pdf->config["boxGap"], $height, '', 0, 'J', 0, 0, '', '', false, 0, false, true, 0);
 
 //Get current write position: we will draw the legend from here
 $x = $pdf->GetX();
@@ -99,16 +103,16 @@ $pdf->MultiCell(0, $height, '', 1, 'C', 0, 1, '', '', true, 0, false, true, 0);
 $pdf->Image('img/stacoloma.jpg', $x + 10, $height - 30, 58, 16);
 //fixed elements: write north and texts 
 $pdf->writeNorth($x + 5, $height - 13);
-//reduce the page break by the 46pt (if the legend doesn't fit, we mustn't write over logo and north)
+//reduce the page break by the 46pt (if the legend doesn't fit, we must not write over logo and north)
 $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM + 46);
 //dynamic elements: write Legend and Title
 $pdf->SetXY($x,$y); //return to the beginning of the legend to start writing dynamically
 if($title = $printData->map->title) $pdf->writeTitle($title, 15);
-$pdf->writeLegend();
+if($pdf->config["showLegend"]) $pdf->writeLegend();
 /* --- END LEGEND BLOCK ---*/
 
 //Close and output PDF document
-if(_DIRECT_OUTPUT) { // default is false
+if($pdf->config["directOutput"]) { // default is false
 	$pdf->Output('pdfPrint.pdf', 'I');
 //save PDF document in tmp directory and return its link	
 } else {

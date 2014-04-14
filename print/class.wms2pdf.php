@@ -2,12 +2,33 @@
 class wms2PDF extends TCPDF {
 	
 	private $servers;
+	public $config = array(
+		/* extra graphical parameters (the others are located in tcpdf_config.php) */
+		"boxGap"=> 5,
+		/* print.php outputs directly the PDF or stores the file and sends the filename? */
+		"directOutput"=>false,
+		/* show the north arrow? */
+		"showNorth"=>true,
+		/* show the reference system? */
+		"showEpsg"=>true,
+		/* show the numeric scale? */
+		"showScale"=>true,
+		/* show the legend? */
+		"showLegend"=>true
+			
+	);
+	
+	public function overwriteConfig($options) {
+		if($options) $this->config = array_merge($this->config, array_intersect_key((array) $options, $this->config));
+		return true;
+	}
 	
 	public function setServers($servers) {
 		//TODO: instead of die, output error
 		if(!$servers) die("No WMS services provided in JSON POST data (printData->map->servers)");
 		// would be nice to check if JSON structure is correct
 		$this->servers = $servers;
+		return true;
 	}
 		
 	public function getRemainingHeight() {
@@ -17,10 +38,10 @@ class wms2PDF extends TCPDF {
 	/* draws a nice box with a north arrow, a reference system and the scale */
 	public function writeNorth($x, $y) {
 		$size = $this->getFontSizePt();
-		$this->Image('img/north2.jpg', $x, $y, 7);
+		if($this->config["showNorth"]) $this->Image('img/north2.jpg', $x, $y, 7);
 		$this->SetFontSize(10);
-		$this->Text($x + 10, $y + 3, "Sistema de referència "."EPSG:4326");
-		$this->Text($x + 10, $y + 8, "Escala del mapa ~ 1:6100");
+		if($this->config["showEpsg"]) $this->Text($x + 10, $y + 3, "Sistema de referència "."EPSG:4326");
+		if($this->config["showScale"]) $this->Text($x + 10, $y + 8, "Escala del mapa ~ 1:6100");
 		//reset default font size
 		$this->SetFontSize($size);
 	}
