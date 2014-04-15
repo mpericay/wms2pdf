@@ -27,10 +27,7 @@ if (isset($_REQUEST['printData'])) {
     $printData = json_decode($content);
     //TODO: instead of die, output error
     if(!$printData->map) die("No JSON provided");
-    else {
-    	$pdf->setServers($printData->map->servers);
-    	$pdf->overwriteConfig($printData->map->config);
-    }
+    else $pdf->loadConfig($printData->map);
 } else {
     $result = array("error" => "-1");
     print_r(json_encode($result));
@@ -73,36 +70,34 @@ $pdf->SetFont('helvetica', '', 12);
 $pdf->AddPage('L', 'A4');
 
 //only for landscape (legend on right)
-$height = $pdf->getRemainingHeight();
-$width = $height; //only for landscape!!!
+$pageHeight = $pdf->getRemainingHeight();
+$imageWidth = $pageHeight * $pdf->getRatio();
 
 // the Image() method recognizes the alpha channel embedded on the image:
-//$pdf->Image('http://mapcache.icc.cat/map/bases_noutm/service?FORMAT=image%2Fjpeg&EXCEPTIONS=application%2Fvnd.ogc.se_xml&SRS=EPSG%3A4326&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&LAYERS=topo&BBOX=2.17462439453%2C41.4216758916%2C2.23401560547%2C41.4810671025&WIDTH=1024&HEIGHT=1024', PDF_MARGIN_LEFT, PDF_MARGIN_TOP, $height, $width, '', '', '', false, 1024);
-//$pdf->Image('http://si.progess.com:8008/geoserver/wms?LAYERS=mediacions_obertes&FORMAT=image%2Fpng&TRANSPARENT=true&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&SRS=EPSG%3A4326&BBOX=2.17462439453%2C41.4216758916%2C2.23401560547%2C41.4810671025&WIDTH=1024&HEIGHT=1024', PDF_MARGIN_LEFT, PDF_MARGIN_TOP, $height, $width, '', '', '', false, 1024);
-$pdf->writeMap($height, $width);
+$pdf->writeMap($imageHeight, $imageWidth);
 $pdf->setPageMark();
 
 //write the boxes
 $pdf->SetLineStyle(array('color'=>array(50, 50, 50)));
 $pdf->SetLineWidth(0.3);
 // write the first cell (Map cell)
-$pdf->MultiCell($width, $height, '', 1, 'J', 0, 0, '', '', true, 0, false, true, 0);
+$pdf->MultiCell($imageWidth, $pageHeight, '', 1, 'J', 0, 0, '', '', true, 0, false, true, 0);
 
 // write the splitter
-$pdf->MultiCell($pdf->config["boxGap"], $height, '', 0, 'J', 0, 0, '', '', false, 0, false, true, 0);
+$pdf->MultiCell($pdf->config["boxGap"], $pageHeight, '', 0, 'J', 0, 0, '', '', false, 0, false, true, 0);
 
 //Get current write position: we will draw the legend from here
 $x = $pdf->GetX();
 $y = $pdf->GetY();
 
 // write the second cell
-$pdf->MultiCell(0, $height, '', 1, 'C', 0, 1, '', '', true, 0, false, true, 0);
+$pdf->MultiCell(0, $pageHeight, '', 1, 'C', 0, 1, '', '', true, 0, false, true, 0);
 
 /* --- START LEGEND BLOCK ---*/
 //fixed elements: write Logo (46pt above bottom)
-$pdf->Image('img/stacoloma.jpg', $x + 10, $height - 30, 58, 16);
+$pdf->Image('img/stacoloma.jpg', $x + 10, $pageHeight - 30, 58, 16);
 //fixed elements: write north and texts 
-$pdf->writeNorth($x + 5, $height - 13);
+$pdf->writeNorth($x + 5, $pageHeight - 13, $imageWidth);
 //reduce the page break by the 46pt (if the legend doesn't fit, we must not write over logo and north)
 $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM + 46);
 //dynamic elements: write Legend and Title

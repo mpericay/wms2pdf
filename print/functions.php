@@ -51,7 +51,7 @@ function correctBbox($bbox, $windowRatio, $fixedScale = false) {
     $bbox[2] = $bbox_cx+$bbox_w;
     $bbox[3] = $bbox_cy+$bbox_h;
 
-    return join(",",$bbox);	
+    return $bbox;	
 }
 
 function get_url_parameter($url, $name, $default = null) {
@@ -92,4 +92,8 @@ function glue_url($parsed) {
   return $uri;
 }
 
+function significant($num, $digits=2) {
+    $multiplier = pow(10, intval(log10($num)) - $digits + 1);
+    return round($num / $multiplier, 0) * $multiplier;
+}
 ?>

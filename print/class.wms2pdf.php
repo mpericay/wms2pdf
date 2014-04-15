@@ -2,6 +2,9 @@
 class wms2PDF extends TCPDF {
 	
 	private $servers;
+	private $bbox;
+	private $ratio = 1;
+	private $size = 1024;
 	public $config = array(
 		/* extra graphical parameters (the others are located in tcpdf_config.php) */
 		"boxGap"=> 5,
@@ -15,7 +18,6 @@ class wms2PDF extends TCPDF {
 		"showScale"=>true,
 		/* show the legend? */
 		"showLegend"=>true
-			
 	);
 	
 	public function overwriteConfig($options) {
@@ -23,10 +25,25 @@ class wms2PDF extends TCPDF {
 		return true;
 	}
 	
-	public function setServers($servers) {
+	public function loadConfig($json) {
+		//whether size is sent, or we use default value
+		$this->size = $json->size ? $json->size : $this->size;
+		//we set the servers info and calculate bbox, width and height
+    	$this->setServers($json->servers, $this->size);
+    	$this->overwriteConfig($json->config);
+	}	
+	
+	public function setServers($servers, $size) {
 		//TODO: instead of die, output error
 		if(!$servers) die("No WMS services provided in JSON POST data (printData->map->servers)");
-		// would be nice to check if JSON structure is correct
+		for($i=0; $i<count($servers); $i++) {
+			$ratio = 1;
+			$bbox = split(",", get_url_parameter($servers[$i]->url, "BBOX"));
+			if(!$this->bbox) $this->bbox = correctBbox($bbox, $this->ratio);
+			$servers[$i]->url = set_url_parameter($servers[$i]->url, "BBOX", join(",",$this->bbox));
+			$servers[$i]->url = set_url_parameter($servers[$i]->url, "WIDTH", $size);
+			$servers[$i]->url = set_url_parameter($servers[$i]->url, "HEIGHT", $size);
+        }	
 		$this->servers = $servers;
 		return true;
 	}
@@ -35,15 +52,34 @@ class wms2PDF extends TCPDF {
 		return ($this->getPageHeight() - $this->getBreakMargin() - $this->GetY());
 	}
 	
+	public function getRatio() {
+		return ($this->ratio);
+	}	
+	
 	/* draws a nice box with a north arrow, a reference system and the scale */
-	public function writeNorth($x, $y) {
+	public function writeNorth($x, $y, $imageWidth) {
 		$size = $this->getFontSizePt();
 		if($this->config["showNorth"]) $this->Image('img/north2.jpg', $x, $y, 7);
 		$this->SetFontSize(10);
 		if($this->config["showEpsg"]) $this->Text($x + 10, $y + 3, "Sistema de referència "."EPSG:4326");
-		if($this->config["showScale"]) $this->Text($x + 10, $y + 8, "Escala del mapa ~ 1:6100");
+		if($this->config["showScale"]) $this->Text($x + 10, $y + 8, "Escala del mapa ~ 1:".$this->getScale($imageWidth));
 		//reset default font size
 		$this->SetFontSize($size);
+	}
+	
+	/* draws a nice box with a north arrow, a reference system and the scale */
+	public function getScale($imageWidth) {
+
+        $scale = intval(1000 * ($this->bbox[2]-$this->bbox[0]) / ($imageWidth));
+        return significant($scale,2);
+        /*} else if (($printData->printoptions->scalebar) == "graphic") {
+                $scale = intval(1000 * ($bbox[2]-$bbox[0]) / ($map_image_width / $page_factor));
+                $sign_scale = _significant($scale / $map_image_width * $scalebar_width,2);
+                $scalebar_x = round($x + $w/2 - $scalebar_width/2 - $padding);
+
+                $pdf->addPngFromFile(_create_graphic_scalebar($sign_scale,$scalebar_width,$scalebar_height),$scalebar_x,$y-$scalebar_height,$scalebar_width,$scalebar_height);
+                $y = $y + $scalebar_height;
+            }*/
 	}
 	
 	/* draws the title */
@@ -58,7 +94,7 @@ class wms2PDF extends TCPDF {
 	public function writeLegend() {
 	    $servers = $this->servers;
 		for($i=0; $i<count($servers); $i++) {
-             for($j=0; $j < sizeof($servers[$i]->layers); $j++) {
+             for($j=0; $j < count($servers[$i]->layers); $j++) {
                  $layers[]=$servers[$i]->layers[$j]->title;
                  $legends[]=$servers[$i]->layers[$j]->legend;
              }
@@ -73,7 +109,7 @@ class wms2PDF extends TCPDF {
         $this->writeHTMLCell(0, 0, $this->GetX() + 5, $this->GetY(), $html, 0, 0, 0, true, 'L', true);
 	}
 	
-	public function writeMap($height, $width, $size = 1024) {
+	public function writeMap($height, $width) {
 		//$pdf->Image('http://mapcache.icc.cat/map/bases_noutm/service?FORMAT=image%2Fjpeg&EXCEPTIONS=application%2Fvnd.ogc.se_xml&SRS=EPSG%3A4326&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&LAYERS=topo&BBOX=2.17462439453%2C41.4216758916%2C2.23401560547%2C41.4810671025&WIDTH=1024&HEIGHT=1024', PDF_MARGIN_LEFT, PDF_MARGIN_TOP, $height, $width, '', '', '', false, 1024);
 		
 		$servers = $this->servers;
@@ -83,16 +119,8 @@ class wms2PDF extends TCPDF {
                 $layers[]=$servers[$i]->layers[$j]->name;
             }
             $wms = implode(",", $layers);*/
-			$ratio = 1;
-			$bbox = split(",", get_url_parameter($servers[$i]->url, "BBOX"));
-			$bbox = correctBbox($bbox, $ratio);
-			$url = set_url_parameter($servers[$i]->url, "BBOX", $bbox);
-			$url = set_url_parameter($url, "WIDTH", $size);
-			$url = set_url_parameter($url, "HEIGHT", $size);
-			//print_r("antic ".$servers[$i]->url." nou ".$url);die();
-			$this->Image($url, PDF_MARGIN_LEFT, PDF_MARGIN_TOP, $height, $width, '', '', '', false, 1024);
+			$this->Image($servers[$i]->url, PDF_MARGIN_LEFT, PDF_MARGIN_TOP, $height, $width, '', '', '', false, 1024);
         }
-        //$this->Image('http://mapcache.icc.cat/map/bases_noutm/service?FORMAT=image%2Fjpeg&EXCEPTIONS=application%2Fvnd.ogc.se_xml&SRS=EPSG%3A4326&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&LAYERS=topo&BBOX=2.17462439453%2C41.4216758916%2C2.23401560547%2C41.4810671025&WIDTH=1024&HEIGHT=1024', PDF_MARGIN_LEFT, PDF_MARGIN_TOP, $height, $width, '', '', '', false, 1024);
 	}
 }
 ?>
