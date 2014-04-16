@@ -64,7 +64,7 @@ $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
 // set JPEG quality
 $pdf->setJPEGQuality(90);
 
-$pdf->SetFont('helvetica', '', 12);
+$pdf->SetFont('helvetica', '', 11);
 // add a page
 $pdf->AddPage('L', 'A4');
 

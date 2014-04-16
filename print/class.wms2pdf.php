@@ -81,7 +81,7 @@ class wms2PDF extends TCPDF {
 	public function writeNorth($x, $y, $imageWidth) {
 		$size = $this->getFontSizePt();
 		if($this->config["showNorth"]) $this->Image('img/north2.jpg', $x, $y, 7);
-		$this->SetFontSize(10);
+		$this->SetFontSize(9);
 		if($this->config["showEpsg"]) $this->Text($x + 10, $y + 3, $this->locale["epsg"]. $this->epsg);
 		//TODO: we can't print geographic coordinates
 		if($this->config["showScale"] && !$this->geographic) $this->Text($x + 10, $y + 8, $this->locale["scale"].$this->getScale($imageWidth));
