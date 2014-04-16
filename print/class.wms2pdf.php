@@ -5,6 +5,8 @@ class wms2PDF extends TCPDF {
 	private $bbox;
 	private $ratio = 1;
 	private $size = 1024;
+	private $forcedScale = false;
+	private $geographic = true;
 	public $config = array(
 		/* extra graphical parameters (the others are located in tcpdf_config.php) */
 		"boxGap"=> 5,
@@ -25,27 +27,37 @@ class wms2PDF extends TCPDF {
 		return true;
 	}
 	
-	public function loadConfig($json) {
+	public function loadConfig($params) {
 		//whether size is sent, or we use default value
-		$this->size = $json->size ? $json->size : $this->size;
+		$this->size = $params->size ? $params->size : $this->size;
+		//whether projected coordinates are sent, or we use default value
+		$this->geographic = array_key_exists("geographic", $params) ? $params->geographic : $this->geographic;
+		//is there a forced scale? 
+		//TODO: we can't do it if geographic coordinates 
+		if(array_key_exists("scale", $params)  && !$this->geographic) $this->forcedScale = $params->scale;
 		//we set the servers info and calculate bbox, width and height
-    	$this->setServers($json->servers, $this->size);
-    	$this->overwriteConfig($json->config);
+    	$this->setServers($params->servers);
+    	$this->overwriteConfig($params->config);
 	}	
 	
-	public function setServers($servers, $size) {
+	public function setServers($servers) {
+		
 		//TODO: instead of die, output error
 		if(!$servers) die("No WMS services provided in JSON POST data (printData->map->servers)");
-		for($i=0; $i<count($servers); $i++) {
-			$ratio = 1;
-			$bbox = split(",", get_url_parameter($servers[$i]->url, "BBOX"));
-			if(!$this->bbox) $this->bbox = correctBbox($bbox, $this->ratio);
-			$servers[$i]->url = set_url_parameter($servers[$i]->url, "BBOX", join(",",$this->bbox));
-			$servers[$i]->url = set_url_parameter($servers[$i]->url, "WIDTH", $size);
-			$servers[$i]->url = set_url_parameter($servers[$i]->url, "HEIGHT", $size);
-        }	
 		$this->servers = $servers;
+		
 		return true;
+	}
+	
+	public function recalculateBbox($imageHeight, $imageWidth) {
+		$servers = $this->servers;
+		for($i=0; $i<count($servers); $i++) {
+			$bbox = split(",", get_url_parameter($servers[$i]->url, "BBOX"));
+			if(!$this->bbox) $this->bbox = correctBbox($bbox, $imageHeight, $imageWidth, $this->forcedScale);
+			$servers[$i]->url = set_url_parameter($servers[$i]->url, "BBOX", join(",",$this->bbox));
+			$servers[$i]->url = set_url_parameter($servers[$i]->url, "WIDTH", $this->size);
+			$servers[$i]->url = set_url_parameter($servers[$i]->url, "HEIGHT", $this->size);
+        }
 	}
 		
 	public function getRemainingHeight() {
@@ -62,7 +74,8 @@ class wms2PDF extends TCPDF {
 		if($this->config["showNorth"]) $this->Image('img/north2.jpg', $x, $y, 7);
 		$this->SetFontSize(10);
 		if($this->config["showEpsg"]) $this->Text($x + 10, $y + 3, "Sistema de referència "."EPSG:4326");
-		if($this->config["showScale"]) $this->Text($x + 10, $y + 8, "Escala del mapa ~ 1:".$this->getScale($imageWidth));
+		//TODO: we can't print geographic coordinates
+		if($this->config["showScale"] && !$this->geographic) $this->Text($x + 10, $y + 8, "Escala del mapa ~ 1:".$this->getScale($imageWidth));
 		//reset default font size
 		$this->SetFontSize($size);
 	}

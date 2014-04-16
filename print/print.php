@@ -2,7 +2,6 @@
 
 // Rutas donde tendremos la libreria y el fichero de idiomas.
 require_once('tcpdf/tcpdf.php');
-require_once('config.php');
 require_once('functions.php');
 require_once('class.wms2pdf.php');
 
@@ -71,7 +70,10 @@ $pdf->AddPage('L', 'A4');
 
 //only for landscape (legend on right)
 $pageHeight = $pdf->getRemainingHeight();
+$imageHeight = $pageHeight; 
 $imageWidth = $pageHeight * $pdf->getRatio();
+
+$pdf->recalculateBbox($imageHeight, $imageWidth);
 
 // the Image() method recognizes the alpha channel embedded on the image:
 $pdf->writeMap($imageHeight, $imageWidth);

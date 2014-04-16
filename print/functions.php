@@ -24,12 +24,14 @@ function saveFile($tmpdir, $pdf) {
 	print_r(json_encode($result));	
 }
 
-function correctBbox($bbox, $windowRatio, $fixedScale = false) {
+function correctBbox($bbox, $imageHeight, $imageWidth, $fixedScale = false) {
+	$windowRatio = $imageWidth / $imageHeight;
     if ($fixedScale) {
             $cenX = ($bbox[0]+$bbox[2])/2;
             $cenY = ($bbox[1]+$bbox[3])/2;
-            $difX = (($fixedScale/1000)*($map_image_width/3))/2;
-            $difY = (($fixedScale/1000)*($map_image_height/3))/2;
+            //half the image in milimeters, multiplied by scale conversion factor
+            $difX = ($imageWidth/2)*($fixedScale/1000);
+            $difY = ($imageHeight/2)*($fixedScale/1000);
 
             $bbox[0] = $cenX - $difX;
             $bbox[1] = $cenY - $difY;
