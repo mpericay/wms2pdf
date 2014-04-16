@@ -13,12 +13,16 @@ class wms2PDF extends TCPDF {
 		"boxGap"=> 5,
 		/* print.php outputs directly the PDF or stores the file and sends the filename? */
 		"directOutput"=>false,
+		/* show the logo? */
+		"showLogo"=>true,
 		/* show the north arrow? */
 		"showNorth"=>true,
 		/* show the reference system? */
 		"showEpsg"=>true,
 		/* show the numeric scale? */
 		"showScale"=>true,
+		/* show the left inferior coords? */
+		"showCoords"=>false,
 		/* show the legend? */
 		"showLegend"=>true
 	);
@@ -26,7 +30,9 @@ class wms2PDF extends TCPDF {
 		/* showEpsg */
 		"epsg"=> "Sistema de referència EPSG:",
 		/* showScale */
-		"scale"=> "Escala del mapa 1:"
+		"scale"=> "Escala del mapa 1:",
+		/* showCoords */
+		"coords"=> "Coordenades de la cantonada inferior\nesquerra del mapa: "
 	);
 	
 	public function overwriteConfig($options) {
@@ -77,6 +83,10 @@ class wms2PDF extends TCPDF {
 		return ($this->ratio);
 	}	
 	
+	public function writeLogo($src, $x, $y) {
+		$this->Image($src, $x, $y);
+	}
+	
 	/* draws a nice box with a north arrow, a reference system and the scale */
 	public function writeNorth($x, $y, $imageWidth) {
 		$size = $this->getFontSizePt();
@@ -85,6 +95,7 @@ class wms2PDF extends TCPDF {
 		if($this->config["showEpsg"]) $this->Text($x + 10, $y + 3, $this->locale["epsg"]. $this->epsg);
 		//TODO: we can't print geographic coordinates
 		if($this->config["showScale"] && !$this->geographic) $this->Text($x + 10, $y + 8, $this->locale["scale"].$this->getScale($imageWidth));
+		else if($this->config["showCoords"]) $this->Text($x + 10, $y + 8, $this->locale["coords"].$this->bbox[0].", ".$this->bbox[2]);
 		//reset default font size
 		$this->SetFontSize($size);
 	}
@@ -125,7 +136,7 @@ class wms2PDF extends TCPDF {
 		$html = '';
         for ($j=count($layers)-1; $j>=0; $j--) {
         	//if legend URL exists, draw the name and legend
-        	if($legends[$j]) $html .= $layers[$j].'<br><img src="'.$legends[$j].'"><br><br>';
+        	if($legends[$j]) $html .= $layers[$j].'<br><img src="'.$legends[$j].'"><br>';
         }
         
         $this->writeHTMLCell(0, 0, $this->GetX() + 5, $this->GetY(), $html, 0, 0, 0, true, 'L', true);

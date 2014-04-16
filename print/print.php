@@ -73,6 +73,7 @@ $pageHeight = $pdf->getRemainingHeight();
 $imageHeight = $pageHeight; 
 $imageWidth = $pageHeight * $pdf->getRatio();
 
+//we need to pass image width and height to recalculate bbox
 $pdf->recalculateBbox($imageHeight, $imageWidth);
 
 // the Image() method recognizes the alpha channel embedded on the image:
@@ -96,12 +97,23 @@ $y = $pdf->GetY();
 $pdf->MultiCell(0, $pageHeight, '', 1, 'C', 0, 1, '', '', true, 0, false, true, 0);
 
 /* --- START LEGEND BLOCK ---*/
-//fixed elements: write Logo (46pt above bottom)
-$pdf->Image('img/stacoloma.jpg', $x + 10, $pageHeight - 30, 58, 16);
 //fixed elements: write north and texts 
-$pdf->writeNorth($x + 5, $pageHeight - 13, $imageWidth);
+$fixedSpaceUsed = 0;
+if($pdf->config["showNorth"]) {
+	$northHeight = 13;
+	$pdf->writeNorth($x + 5, $pageHeight - $northHeight, $imageWidth);
+	$fixedSpaceUsed += $northHeight;
+}
+
+//fixed elements: write logo (46pt above bottom)
+if($pdf->config["showLogo"]) {
+	$logoHeight = 16;
+	$pdf->writeLogo('img/stacoloma.jpg', $x + 10, $pageHeight - $logoHeight - $fixedSpaceUsed);
+	$fixedSpaceUsed += $logoHeight;
+}
+
 //reduce the page break by the 46pt (if the legend doesn't fit, we must not write over logo and north)
-$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM + 46);
+$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM + $fixedSpaceUsed * PDF_IMAGE_SCALE_RATIO);
 //dynamic elements: write Legend and Title
 $pdf->SetXY($x,$y); //return to the beginning of the legend to start writing dynamically
 if($title = $printData->map->title) $pdf->writeTitle($title, 15);

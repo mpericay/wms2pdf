@@ -179,7 +179,7 @@ define ('PDF_FONT_MONOSPACED', 'courier');
 /**
  * Ratio used to adjust the conversion of pixels to user units.
  */
-define ('PDF_IMAGE_SCALE_RATIO', 1.25);
+define ('PDF_IMAGE_SCALE_RATIO', 1.5);
 
 /**
  * Magnification factor for titles.
