@@ -3,6 +3,7 @@ var json={
         "title": "EII Santa Coloma",
         "size": "1024",
         "scale": "5000",
+        "epsg": 4326,
         "geographic": true,
         "servers": [{
             "name": "Ortofotos ICC",

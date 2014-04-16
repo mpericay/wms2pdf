@@ -2,6 +2,7 @@ var json = {
         "map": {
             "title": "Barraques de pedra seca",
             "size": "1024",
+            "epsg": 23031,            
             "geographic": false,
             "servers": [{
                 "name": "Ortofotos ICC",
@@ -27,19 +28,6 @@ var json = {
                 "scalebar": "numeric",
                 "legendqfactor": "0.7",
                 "showreferencemap": false
-            },
-            "locale": {
-                "title": "",
-                "text1": "",
-                "text2": "",
-                "create_pdf": "",
-                "coordinates": "Coordenades de la cantonada inferior esquerra del mapa",
-                "referencesystem": "Sistema de referÃ¨ncia",
-                "mapscale": "Escala del mapa",
-                "printscale": "Escala d'impressiÃ³",
-                "currentscale": "Actual (aproximada)",
-                "numPage": "Pàgina",
-                "numPageOf": "de"
             }
         }
     };

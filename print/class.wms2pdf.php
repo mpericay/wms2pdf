@@ -21,6 +21,12 @@ class wms2PDF extends TCPDF {
 		/* show the legend? */
 		"showLegend"=>true
 	);
+	public $locale = array(
+		/* showEpsg */
+		"epsg"=> "Sistema de referència EPSG:",
+		/* showScale */
+		"scale"=> "Escala del mapa 1:"
+	);
 	
 	public function overwriteConfig($options) {
 		if($options) $this->config = array_merge($this->config, array_intersect_key((array) $options, $this->config));
@@ -73,9 +79,9 @@ class wms2PDF extends TCPDF {
 		$size = $this->getFontSizePt();
 		if($this->config["showNorth"]) $this->Image('img/north2.jpg', $x, $y, 7);
 		$this->SetFontSize(10);
-		if($this->config["showEpsg"]) $this->Text($x + 10, $y + 3, "Sistema de referència "."EPSG:4326");
+		if($this->config["showEpsg"]) $this->Text($x + 10, $y + 3, $this->locale["epsg"]. "4326");
 		//TODO: we can't print geographic coordinates
-		if($this->config["showScale"] && !$this->geographic) $this->Text($x + 10, $y + 8, "Escala del mapa ~ 1:".$this->getScale($imageWidth));
+		if($this->config["showScale"] && !$this->geographic) $this->Text($x + 10, $y + 8, $this->locale["scale"].$this->getScale($imageWidth));
 		//reset default font size
 		$this->SetFontSize($size);
 	}

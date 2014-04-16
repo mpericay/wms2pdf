@@ -3,6 +3,7 @@ var json={
         "title": "Ajuntament de Polinyà",
         "size": "1024",
         "scale": "5000",
+        "epsg": 23031,        
         "geographic": false,
         "servers": [{
             "name": "Ortofotos ICC",
