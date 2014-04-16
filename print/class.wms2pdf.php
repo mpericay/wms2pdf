@@ -6,6 +6,7 @@ class wms2PDF extends TCPDF {
 	private $ratio = 1;
 	private $size = 1024;
 	private $forcedScale = false;
+	private $epsg = 4326;
 	private $geographic = true;
 	public $config = array(
 		/* extra graphical parameters (the others are located in tcpdf_config.php) */
@@ -35,7 +36,9 @@ class wms2PDF extends TCPDF {
 	
 	public function loadConfig($params) {
 		//whether size is sent, or we use default value
-		$this->size = $params->size ? $params->size : $this->size;
+		$this->size = array_key_exists("size", $params) ? $params->size : $this->size;
+		//whether epsg is sent, or we use default value
+		$this->epsg = array_key_exists("epsg", $params) ? $params->epsg : $this->epsg;		
 		//whether projected coordinates are sent, or we use default value
 		$this->geographic = array_key_exists("geographic", $params) ? $params->geographic : $this->geographic;
 		//is there a forced scale? 
@@ -79,7 +82,7 @@ class wms2PDF extends TCPDF {
 		$size = $this->getFontSizePt();
 		if($this->config["showNorth"]) $this->Image('img/north2.jpg', $x, $y, 7);
 		$this->SetFontSize(10);
-		if($this->config["showEpsg"]) $this->Text($x + 10, $y + 3, $this->locale["epsg"]. "4326");
+		if($this->config["showEpsg"]) $this->Text($x + 10, $y + 3, $this->locale["epsg"]. $this->epsg);
 		//TODO: we can't print geographic coordinates
 		if($this->config["showScale"] && !$this->geographic) $this->Text($x + 10, $y + 8, $this->locale["scale"].$this->getScale($imageWidth));
 		//reset default font size
