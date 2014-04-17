@@ -52,7 +52,7 @@ class wms2PDF extends TCPDF {
 		if(array_key_exists("scale", $params)  && !$this->geographic) $this->forcedScale = $params->scale;
 		//we set the servers info and calculate bbox, width and height
     	$this->setServers($params->servers);
-    	$this->overwriteConfig($params->config);
+    	if(array_key_exists("config", $params)) $this->overwriteConfig($params->config);
 	}	
 	
 	public function setServers($servers) {
@@ -127,10 +127,12 @@ class wms2PDF extends TCPDF {
 	public function writeLegend() {
 	    $servers = $this->servers;
 		for($i=0; $i<count($servers); $i++) {
-             for($j=0; $j < count($servers[$i]->layers); $j++) {
-                 $layers[]=$servers[$i]->layers[$j]->title;
-                 $legends[]=$servers[$i]->layers[$j]->legend;
-             }
+			 if(isset($servers[$i]->layers)) {
+	             for($j=0; $j < count($servers[$i]->layers); $j++) {
+	                 $layers[]=$servers[$i]->layers[$j]->title;
+	                 $legends[]=$servers[$i]->layers[$j]->legend;
+	             }
+			 }
         }
 
 		$html = '';
