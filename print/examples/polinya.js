@@ -1,8 +1,7 @@
 var json={
     "map": {
-        "title": "Ajuntament de Polinyà",
-        "size": "1024",
-        "scale": "5000",
+        "title": "Polinyà: guia urbana",
+        "size": 1024,
         "epsg": 23031,        
         "geographic": false,
         "servers": [{
@@ -38,16 +37,9 @@ var json={
             "showNorth": true,
             "showEpsg": true,
             "showScale": true,
-            "showLegend": true,
-            "boxGap": 2,
-            "directOutput": false
-        },
-        "locale": {
-            "coordinates": "Coordenades de la cantonada inferior esquerra del mapa",
-            "referenceSystem": "Sistema de referÃ¨ncia",
-            "mapScale": "Escala del mapa",
-            "numPage": "Pàgina",
-            "numPageOf": "de"
+            "showLegend": false,
+            "showLogo": false,
+            "boxGap": 3
         }
     }
 };

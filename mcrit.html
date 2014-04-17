@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>WMS2PDF print demo</title>
+<link href="main.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+<h3>Impressió</h3>
+Cal cridar el geoservei print/print.php enviant el paràmetre 'printData' amb el següent JSON per POST (veure funció sendJson). La crida retorna un enllaç al document PDF (funció getPDFLink).<br>
+Per veure impressió resultant a PDF prémer: <button type="button" id="go">Cridar servei</button><br/>
+<textarea readonly id="seeJson" rows="24" cols="140">
+</textarea>
+<br>
+Seleccionar un dels tres exemples
+<button type="button" id="polinya1">Polinya</button>
+<button type="button" id="polinya2">Polinya urbanisme</button>
+<button type="button" id="wiki">Wikipedra</button>
+i prémer "cridar servei"
+<script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+<script src="print/examples/polinya.js"></script>
+<script src="print/examples/polinya2.js"></script>
+<script src="print/examples/wiki.js"></script>
+<script>
+
+function getPDFLink(data) {
+    if (data.error == 0) {
+        //window.open(data.url,"_blank","menubar=no,toolbar=no,scrollbars=no,status=no,resizable=no");
+        location.href= "print/print.php?pdfUrl="+data.url;
+    //window.location = this.printServerUrl+"?pdfUrl="+data.url;
+    } else {
+        alert("Error creating pdf: " + data.error);
+    }
+
+}
+
+function sendJson() {
+        $.ajax({
+            type: "POST",
+            url: "print/print.php",
+            data: { printData: JSON.stringify(selectedJson)},
+            contentType: "application/x-www-form-urlencoded",
+            dataType: "json",
+            success: function(data){
+                getPDFLink(data);
+            },
+            failure: function(errMsg) {
+                alert(errMsg);
+            }
+        });
+}
+
+function selectExample(newJson) {
+    selectedJson = newJson;
+    var str = JSON.stringify(selectedJson, undefined, 2); // indentation level = 2
+    $("#seeJson").html(str);
+}
+
+$( document ).ready(function() {
+    selectExample(json);
+    $("#go").click(function() {
+        sendJson(json); 
+     });
+    $("#polinya1").click(function() {
+        selectExample(json); 
+     });
+    $("#polinya2").click(function() {
+        selectExample(json2); 
+     });
+    $("#wiki").click(function() {
+        selectExample(json3); 
+     });
+    
+});
+
+</script>
+</body>
+</html>

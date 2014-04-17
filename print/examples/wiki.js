@@ -1,4 +1,4 @@
-var json = {
+var json3 = {
         "map": {
             "title": "Barraques de pedra seca",
             "size": "1024",
@@ -10,24 +10,22 @@ var json = {
             },
             {
                 "name": "Límits administratius",
-                "url": "http://wikipedra.catpaisatge.net/cgi-bin/mapserv?map=/usr/share/wikipedra/maps/referencia.map&FORMAT=image%2Fpng&TRANSPARENT=true&EXCEPTIONS=application%2Fvnd.ogc.se_xml&INFOFORMAT=application%2Fvnd.ogc.gml&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&LAYERS=municipis&SRS=EPSG%3A23031&BBOX=393973.5,4562820,399423.5,4568080&WIDTH=545&HEIGHT=526",
+                "url": "http://wikipedra.catpaisatge.net/cgi-bin/mapserv?map=/usr/share/wikipedra/maps/referencia.map&FORMAT=image%2Fpng&TRANSPARENT=true&EXCEPTIONS=application%2Fvnd.ogc.se_xml&INFOFORMAT=application%2Fvnd.ogc.gml&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&LAYERS=municipis,unitats_paisatgistiques&SRS=EPSG%3A23031&BBOX=393973.5,4562820,399423.5,4568080&WIDTH=545&HEIGHT=526",
                 "layers": [{
                     "title": "Municipis",
                     "legend": "http://wikipedra.catpaisatge.net/cgi-bin/mapserv?map=/usr/share/wikipedra/maps/referencia.map&REQUEST=GetLegendGraphic&VERSION=1.1.1&LAYER=municipis&FORMAT=image/png&SERVICE=WMS"
+                },{
+                    "title": "Unitats paisatgístiques",
+                    "legend": "http://wikipedra.catpaisatge.net/cgi-bin/mapserv?map=/usr/share/wikipedra/maps/referencia.map&REQUEST=GetLegendGraphic&VERSION=1.1.1&LAYER=unitats_paisatgistiques&FORMAT=image/png&SERVICE=WMS"
                 }]
             }],
-            "printoptions": {
-                "showcoordinates": false,
-                "showreferencesystem": true,
-                "legendwidth": "150",
-                "personaltext": "WIKIPEDRA - Barraques de pedra seca",
-                "qfactor": "2",
-                "showselectionitem": true,
-                "footerheight": "60",
-                "fixedscales": "",
-                "scalebar": "numeric",
-                "legendqfactor": "0.7",
-                "showreferencemap": false
+            "config": {
+                "showNorth": true,
+                "showEpsg": false,
+                "showScale": true,
+                "showLegend": false,
+                "showLogo": false,
+                "boxGap": 5
             }
         }
     };

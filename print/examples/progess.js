@@ -2,9 +2,6 @@ var json={
     "map": {
         "title": "EII Santa Coloma",
         "size": "1024",
-        "scale": "5000",
-        "epsg": 4326,
-        "geographic": true,
         "servers": [{
             "name": "Ortofotos ICC",
             "url": "http://mapcache.icc.cat/map/bases_noutm/service?FORMAT=image%2Fjpeg&EXCEPTIONS=application%2Fvnd.ogc.se_xml&SRS=EPSG%3A4326&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&LAYERS=topo&BBOX=2.1746243945313,41.435603918945,2.2340156054688,41.467139075195&WIDTH=1356&HEIGHT=720",
