@@ -58,7 +58,7 @@ class wms2PDF extends TCPDF {
 	public function setServers($servers) {
 		
 		//TODO: instead of die, output error
-		if(!$servers) die("No WMS services provided in JSON POST data (printData->map->servers)");
+		if(!$servers) outputError("No WMS services provided in JSON POST data (printData->map->servers)");
 		$this->servers = $servers;
 		
 		return true;
@@ -156,6 +156,16 @@ class wms2PDF extends TCPDF {
             $wms = implode(",", $layers);*/
 			$this->Image($servers[$i]->url, PDF_MARGIN_LEFT, PDF_MARGIN_TOP, $height, $width, '', '', '', false, 1024);
         }
+	}
+	
+	/* override error to output error messages */
+	/* TODO: shouldn't do that in production environment */
+	public function Error($msg) {
+   		// unset all class variables
+   		$this->_destroy(true);
+
+  		//output Error
+   		outputError($msg);
 	}
 }
 ?>

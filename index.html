@@ -20,7 +20,7 @@ function getPDFLink(data) {
         location.href= "print/print.php?pdfUrl="+data.url;
     //window.location = this.printServerUrl+"?pdfUrl="+data.url;
     } else {
-        alert("Error creating pdf: " + data.error);
+        alert("Error creating pdf: " + data.text);
     }
 
 }

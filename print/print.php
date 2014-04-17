@@ -28,9 +28,7 @@ if (isset($_REQUEST['printData'])) {
     if(!$printData->map) die("No JSON provided");
     else $pdf->loadConfig($printData->map);
 } else {
-    $result = array("error" => "-1");
-    print_r(json_encode($result));
-    die();
+	outputError("No POST data sent (printData)");
 }
 
 // set document information

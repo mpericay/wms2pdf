@@ -15,6 +15,12 @@ function forceDownload($dir,$fileName) {
     echo $data;
 }
 
+function outputError($txt) {
+	$result = array("error" => "-1", "text" => $txt);
+    print_r(json_encode($result));
+    die();
+}
+
 function saveFile($tmpdir, $pdf) {
 	$fileName = "pdfPrint".gmdate('YmdHis').".pdf";
 	$file = $tmpdir.$fileName;
