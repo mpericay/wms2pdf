@@ -84,13 +84,13 @@ function http_implode($input) {
 
 function glue_url($parsed) {
   if (! is_array($parsed)) return false;
-  $uri = $parsed['scheme'] ? $parsed['scheme'].':'.((strtolower($parsed['scheme']) == 'mailto') ? '':'//'): '';
-  $uri .= $parsed['user'] ? $parsed['user'].($parsed['pass']? ':'.$parsed['pass']:'').'@':'';
-  $uri .= $parsed['host'] ? $parsed['host'] : '';
-  $uri .= $parsed['port'] ? ':'.$parsed['port'] : '';
-  $uri .= $parsed['path'] ? $parsed['path'] : '';
-  $uri .= $parsed['query'] ? '?'.$parsed['query'] : '';
-  $uri .= $parsed['fragment'] ? '#'.$parsed['fragment'] : '';
+  if(array_key_exists('scheme', $parsed)) $uri = $parsed['scheme'] ? $parsed['scheme'].':'.((strtolower($parsed['scheme']) == 'mailto') ? '':'//'): '';
+  if(array_key_exists('user', $parsed)) $uri .= $parsed['user'] ? $parsed['user'].($parsed['pass']? ':'.$parsed['pass']:'').'@':'';
+  if(array_key_exists('host', $parsed)) $uri .= $parsed['host'] ? $parsed['host'] : '';
+  if(array_key_exists('port', $parsed)) $uri .= $parsed['port'] ? ':'.$parsed['port'] : '';
+  if(array_key_exists('path', $parsed)) $uri .= $parsed['path'] ? $parsed['path'] : '';
+  if(array_key_exists('query', $parsed)) $uri .= $parsed['query'] ? '?'.$parsed['query'] : '';
+  if(array_key_exists('fragment', $parsed)) $uri .= $parsed['fragment'] ? '#'.$parsed['fragment'] : '';
   return $uri;
 }
 
