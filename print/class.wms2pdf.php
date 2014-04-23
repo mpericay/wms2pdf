@@ -84,7 +84,8 @@ class wms2PDF extends TCPDF {
 	}	
 	
 	public function writeLogo($src, $x, $y) {
-		$this->Image($src, $x, $y);
+		//TODO: 50 is hard-coded width for Progess
+		$this->Image($src, $x, $y, 50);
 	}
 	
 	/* draws a nice box with a north arrow, a reference system and the scale */
