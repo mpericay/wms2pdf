@@ -215,3 +215,8 @@ pip-log.txt
 .mr.developer.cfg
 
 print/tcpdf/fonts/
+
+#progess examples
+index.html
+print/examples/progess.js
+print/examples/progess2.js
