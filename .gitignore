@@ -214,9 +214,13 @@ pip-log.txt
 #Mr Developer
 .mr.developer.cfg
 
+#no need to sync 18Mb
 print/tcpdf/fonts/
 
 #progess examples
 index.html
 print/examples/progess.js
 print/examples/progess2.js
+
+#itemprint example
+itemprint/
