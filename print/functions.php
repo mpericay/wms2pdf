@@ -1,4 +1,21 @@
 <?php
+
+/**
+ * Functions for WMS2PDF service
+ *
+ * @author     Marti Pericay <marti@pericay.com>
+ * @author     Mcrit <catala@mcrit.com>
+ * @copyright  (c) 2014 by Marti Pericay and MCRIT
+ * @license    http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License
+ * 
+ * Parts of the code
+ * @copyright (c) 2008 by Geodata Sistemas S.L.
+ * 
+ * This program is free software. You can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License.
+ */
+
 function forceDownload($dir,$fileName) {
     $file = $dir.$fileName;
     $gestor = @fopen($file, "r");
