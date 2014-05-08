@@ -109,7 +109,7 @@ class wms2PDF extends TCPDF {
 		$this->SetFontSize(9);
 		if($this->config["showEpsg"]) $this->Text($x + 10, $y + 3, $this->locale["epsg"]. $this->epsg);
 		//TODO: we can't print geographic coordinates
-		if($this->config["showScale"] && !$this->geographic) $this->Text($x + 10, $y + 8, $this->locale["scale"].$this->getScale($imageWidth));
+		if($this->config["showScale"] && $scale = $this->getScale($imageWidth)) $this->Text($x + 10, $y + 8, $this->locale["scale"].$scale);
 		else if($this->config["showCoords"]) $this->Text($x + 10, $y + 8, $this->locale["coords"].$this->bbox[0].", ".$this->bbox[2]);
 		//reset default font size
 		$this->SetFontSize($size);
@@ -117,6 +117,8 @@ class wms2PDF extends TCPDF {
 	
 	/* draws a nice box with a north arrow, a reference system and the scale */
 	public function getScale($imageWidth) {
+		
+		if($this->geographic) return false;
 
         $scale = intval(1000 * ($this->bbox[2]-$this->bbox[0]) / ($imageWidth));
         return significant($scale,2);
