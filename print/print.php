@@ -14,6 +14,7 @@
 
 // Rutas donde tendremos la libreria y el fichero de idiomas.
 require_once('tcpdf/tcpdf.php');
+require_once('geolocation/geolocation.php');
 require_once('functions.php');
 require_once('class.wms2pdf.php');
 

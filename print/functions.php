@@ -47,14 +47,23 @@ function saveFile($tmpdir, $pdf) {
 	print_r(json_encode($result));	
 }
 
-function correctBbox($bbox, $imageHeight, $imageWidth, $fixedScale = false) {
+function correctBbox($bbox, $imageHeight, $imageWidth, $fixedScale = false, $geographic = false) {
 	$windowRatio = $imageWidth / $imageHeight;
     if ($fixedScale) {
             $cenX = ($bbox[0]+$bbox[2])/2;
             $cenY = ($bbox[1]+$bbox[3])/2;
-            //half the image in milimeters, multiplied by scale conversion factor
-            $difX = ($imageWidth/2)*($fixedScale/1000);
-            $difY = ($imageHeight/2)*($fixedScale/1000);
+			//half the image in milimeters, multiplied by scale conversion factor
+	        $difX = ($imageWidth/2)*($fixedScale/1000);
+	        $difY = ($imageHeight/2)*($fixedScale/1000);
+	                    
+            if($geographic) {
+            	$geo = new GeoLocation();
+		        $edison = $geo->fromDegrees($cenY, $cenX);
+		        $coordinates = $edison->boundingCoordinates($difX/1000, 'km');
+		        
+		        $difX = $coordinates[1]->getLongitudeInDegrees() - $coordinates[0]->getLongitudeInDegrees();
+		        $difY = $coordinates[1]->getLatitudeInDegrees() - $coordinates[0]->getLatitudeInDegrees();
+            }
 
             $bbox[0] = $cenX - $difX;
             $bbox[1] = $cenY - $difY;

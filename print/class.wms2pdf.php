@@ -63,7 +63,7 @@ class wms2PDF extends TCPDF {
 		$this->geographic = array_key_exists("geographic", $params) ? $params->geographic : $this->geographic;
 		//is there a forced scale? 
 		//TODO: we can't do it if geographic coordinates 
-		if(array_key_exists("scale", $params)  && !$this->geographic) $this->forcedScale = $params->scale;
+		if(array_key_exists("scale", $params)) $this->forcedScale = $params->scale;
 		//we set the servers info and calculate bbox, width and height
     	$this->setServers($params->servers);
     	if(array_key_exists("config", $params)) $this->overwriteConfig($params->config);
@@ -82,7 +82,7 @@ class wms2PDF extends TCPDF {
 		$servers = $this->servers;
 		for($i=0; $i<count($servers); $i++) {
 			$bbox = split(",", get_url_parameter($servers[$i]->url, "BBOX"));
-			if(!$this->bbox) $this->bbox = correctBbox($bbox, $imageHeight, $imageWidth, $this->forcedScale);
+			if(!$this->bbox) $this->bbox = correctBbox($bbox, $imageHeight, $imageWidth, $this->forcedScale, $this->geographic);
 			$servers[$i]->url = set_url_parameter($servers[$i]->url, "BBOX", join(",",$this->bbox));
 			$servers[$i]->url = set_url_parameter($servers[$i]->url, "WIDTH", $this->size);
 			$servers[$i]->url = set_url_parameter($servers[$i]->url, "HEIGHT", $this->size);
