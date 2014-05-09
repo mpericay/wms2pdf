@@ -2,6 +2,8 @@
 
 /**
  * Class based on TCPDF to print PDF files from WMS services
+ * Uses code from Anthony Martin (https://github.com/anthonymartin/GeoLocation.php)
+ * licensed under CC 3.0 license: http://creativecommons.org/licenses/by/3.0/
  *
  * @author     Marti Pericay <marti@pericay.com>
  * @author     Mcrit <catala@mcrit.com>
@@ -115,21 +117,22 @@ class wms2PDF extends TCPDF {
 		$this->SetFontSize($size);
 	}
 	
-	/* draws a nice box with a north arrow, a reference system and the scale */
+	/* gets scale value by measuring horizontal distance and image width */
 	public function getScale($imageWidth) {
 		
-		if($this->geographic) return false;
+		if($this->geographic) {
+            $geo = new GeoLocation();
+            $left = $geo->fromDegrees($this->bbox[3], $this->bbox[0]);
+		    $right = $geo->fromDegrees($this->bbox[3], $this->bbox[2]);
+		    $distance = $left->distanceTo($right, 'kilometers') * 1000;	//km to meters
+		} else {
+			$distance = $this->bbox[2]-$this->bbox[0];
+		}
+		
 
-        $scale = intval(1000 * ($this->bbox[2]-$this->bbox[0]) / ($imageWidth));
+        $scale = intval(1000 * ($distance) / ($imageWidth));
         return significant($scale,2);
-        /*} else if (($printData->printoptions->scalebar) == "graphic") {
-                $scale = intval(1000 * ($bbox[2]-$bbox[0]) / ($map_image_width / $page_factor));
-                $sign_scale = _significant($scale / $map_image_width * $scalebar_width,2);
-                $scalebar_x = round($x + $w/2 - $scalebar_width/2 - $padding);
 
-                $pdf->addPngFromFile(_create_graphic_scalebar($sign_scale,$scalebar_width,$scalebar_height),$scalebar_x,$y-$scalebar_height,$scalebar_width,$scalebar_height);
-                $y = $y + $scalebar_height;
-            }*/
 	}
 	
 	/* draws the title */

@@ -57,9 +57,10 @@ function correctBbox($bbox, $imageHeight, $imageWidth, $fixedScale = false, $geo
 	        $difY = ($imageHeight/2)*($fixedScale/1000);
 	                    
             if($geographic) {
+            	$radius = $difX/2/1000; //half the width, to kilometers
             	$geo = new GeoLocation();
 		        $edison = $geo->fromDegrees($cenY, $cenX);
-		        $coordinates = $edison->boundingCoordinates($difX/1000, 'km');
+		        $coordinates = $edison->boundingCoordinates($radius, 'km');
 		        
 		        $difX = $coordinates[1]->getLongitudeInDegrees() - $coordinates[0]->getLongitudeInDegrees();
 		        $difY = $coordinates[1]->getLatitudeInDegrees() - $coordinates[0]->getLatitudeInDegrees();
