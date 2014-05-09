@@ -1,3 +1,16 @@
+WMS2PDF
+=======
+
+WMS2PDF is a library that prints a WMS (Web Map Service) services collection to a PDF file. 
+Licensed under  http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License
+
+Uses Anthony Martin's GeoLocation library (https://github.com/anthonymartin/GeoLocation.php) 
+to calculate distance between two points. Many thanks to him!
+Geolocation is licensed under CC 3.0 license: http://creativecommons.org/licenses/by/3.0/
+
+JSON params
+-----------
+
 WMS2PDF és una llibreria per imprimir serveis WMS a un fitxer PDF. Accepta el paràmetre 'printData' per POST que conté dades en format JSON que permeten definir multitud de paràmetres: títol, escala, projecció, llegendes ... Per començar el més senzill és consultar l'exemple a mcrit.htm i diversos exemples a la carpeta /examples però a continuació es descriuen els elements de l'estructura de l'arxiu JSON.
 
 - "title": títol del mapa
