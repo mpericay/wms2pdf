@@ -16,15 +16,16 @@ var json3 = {
                     "legend": "http://wikipedra.catpaisatge.net/cgi-bin/mapserv?map=/usr/share/wikipedra/maps/referencia.map&REQUEST=GetLegendGraphic&VERSION=1.1.1&LAYER=municipis&FORMAT=image/png&SERVICE=WMS"
                 },{
                     "title": "Unitats paisatgístiques",
-                    "legend": "http://wikipedra.catpaisatge.net/cgi-bin/mapserv?map=/usr/share/wikipedra/maps/referencia.map&REQUEST=GetLegendGraphic&VERSION=1.1.1&LAYER=unitats_paisatgistiques&FORMAT=image/png&SERVICE=WMS"
+                    "legend": "http://www.aquestallegenda.com/es/completament/inventada.png"
                 }]
             }],
             "config": {
                 "showNorth": true,
                 "showEpsg": false,
                 "showScale": true,
-                "showLegend": false,
+                "showLegend": true,
                 "showLogo": false,
+                "ignoreLegendErrors": true,
                 "boxGap": 5
             }
         }

@@ -40,7 +40,9 @@ class wms2PDF extends TCPDF {
 		/* show the left inferior coords? */
 		"showCoords"=>false,
 		/* show the legend? */
-		"showLegend"=>true
+		"showLegend"=>true,
+		/* if a legend fails, throw error or ignore the error? */
+		"ignoreLegendErrors"=>false
 	);
 	public $locale = array(
 		/* showEpsg */
@@ -156,9 +158,15 @@ class wms2PDF extends TCPDF {
         }
 
 		$html = '';
+		
         for ($j=count($layers)-1; $j>=0; $j--) {
-        	//if legend URL exists, draw the name and legend
-        	if($legends[$j]) $html .= $layers[$j].'<br><img src="'.$legends[$j].'"><br>';
+        	$writeLegend = true;
+        	if($this->config['ignoreLegendErrors']) {
+        		//if legend URL doesn't exist, don't write it
+        		if(!@getimagesize($legends[$j])) $writeLegend = false;
+        	}
+        	//if legend URL exists or we don't want to check, draw the name and legend
+        	if($writeLegend) $html .= $layers[$j].'<br><img src="'.$legends[$j].'"><br>';
         }
         
         $this->writeHTMLCell(0, 0, $this->GetX() + 5, $this->GetY(), $html, 0, 0, 0, true, 'L', true);
