@@ -17,8 +17,7 @@ var json={
             "name": "Mapserver Polinyà",
             "url": "http://oslo.geodata.es/db2p/polinya?FORMAT=image%2Fpng&TRANSPARENT=true&VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&STYLES=&EXCEPTIONS=application%2Fvnd.ogc.se_inimage&LAYERS=cultural%2Ccorreus%2Ccabina%2Cadministratiu&SRS=EPSG%3A23031&BBOX=428349.0942365,4600330.8094567,430981.69698155,4601709.2878789&WIDTH=1492&HEIGHT=781",
             "layers": [{
-                "title": "Administratiu",
-                "legend": "http://oslo.geodata.es/db2p/polinya?LAYER=administratiu&REQUEST=GetLegendGraphic&VERSION=1.1.1&FORMAT=image/png&SERVICE=WMS"
+                "title": "Administratiu"
             },
             {
                 "title": "Correus",
@@ -37,7 +36,7 @@ var json={
             "showNorth": true,
             "showEpsg": true,
             "showScale": true,
-            "showLegend": false,
+            "showLegend": true,
             "showLogo": false,
             "boxGap": 3
         }

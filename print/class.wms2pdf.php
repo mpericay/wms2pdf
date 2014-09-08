@@ -151,8 +151,10 @@ class wms2PDF extends TCPDF {
 		for($i=0; $i<count($servers); $i++) {
 			 if(isset($servers[$i]->layers)) {
 	             for($j=0; $j < count($servers[$i]->layers); $j++) {
-	                 $layers[]=$servers[$i]->layers[$j]->title;
-	                 $legends[]=$servers[$i]->layers[$j]->legend;
+	             	if(isset($servers[$i]->layers[$j]->legend)) {
+		                 $layers[]=$servers[$i]->layers[$j]->title;
+		                 $legends[]=$servers[$i]->layers[$j]->legend;
+	             	}
 	             }
 			 }
         }
