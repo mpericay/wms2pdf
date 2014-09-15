@@ -41,6 +41,8 @@ class wms2PDF extends TCPDF {
 		"showCoords"=>false,
 		/* show the legend? */
 		"showLegend"=>true,
+		/* show a personal text? */
+		"customText"=>false,
 		/* if a legend fails, throw error or ignore the error? */
 		"ignoreLegendErrors"=>false
 	);
@@ -48,7 +50,7 @@ class wms2PDF extends TCPDF {
 		/* showEpsg */
 		"epsg"=> "Sistema de referència EPSG:",
 		/* showScale */
-		"scale"=> "Escala del mapa 1:",
+		"scale"=> "Escala aproximada del mapa 1:",
 		/* showCoords */
 		"coords"=> "Coordenades de la cantonada inferior\nesquerra del mapa: "
 	);
@@ -115,6 +117,7 @@ class wms2PDF extends TCPDF {
 		//TODO: we can't print geographic coordinates
 		if($this->config["showScale"] && $scale = $this->getScale($imageWidth)) $this->Text($x + 10, $y + 8, $this->locale["scale"].$scale);
 		else if($this->config["showCoords"]) $this->Text($x + 10, $y + 8, $this->locale["coords"].$this->bbox[0].", ".$this->bbox[2]);
+		if($this->config["customText"]) $this->Text($x, $y + 16, $this->config["customText"]);
 		//reset default font size
 		$this->SetFontSize($size);
 	}
