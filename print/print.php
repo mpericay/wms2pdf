@@ -30,8 +30,15 @@ if (isset($_REQUEST["pdfUrl"])) {
     die();
 }
 
-// create new PDF document
-$pdf = new wms2PDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+if (isset($_REQUEST['profile'])) {
+	//Require class file
+	$profile = $_REQUEST['profile'];
+	require_once("profiles/class.".$profile.".php");
+	$pdf = new $profile(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+}
+
+// create new PDF document if no profile was set
+if(!$pdf) $pdf = new wms2PDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
 // get JSON data
 if (isset($_REQUEST['printData'])) {
@@ -76,60 +83,8 @@ $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
 $pdf->setJPEGQuality(90);
 
 $pdf->SetFont('helvetica', '', 11);
-// add a page
-$pdf->AddPage('L', 'A4');
 
-//only for landscape (legend on right)
-$pageHeight = $pdf->getRemainingHeight();
-$imageHeight = $pageHeight; 
-$imageWidth = $pageHeight * $pdf->getRatio();
-
-//we need to pass image width and height to recalculate bbox
-$pdf->recalculateBbox($imageHeight, $imageWidth);
-
-// the Image() method recognizes the alpha channel embedded on the image:
-$pdf->writeMap($imageHeight, $imageWidth);
-$pdf->setPageMark();
-
-//write the boxes
-$pdf->SetLineStyle(array('color'=>array(50, 50, 50)));
-$pdf->SetLineWidth(0.3);
-// write the first cell (Map cell)
-$pdf->MultiCell($imageWidth, $pageHeight, '', 1, 'J', 0, 0, '', '', true, 0, false, true, 0);
-
-// write the splitter
-$pdf->MultiCell($pdf->config["boxGap"], $pageHeight, '', 0, 'J', 0, 0, '', '', false, 0, false, true, 0);
-
-//Get current write position: we will draw the legend from here
-$x = $pdf->GetX();
-$y = $pdf->GetY();
-
-// write the second cell
-$pdf->MultiCell(0, $pageHeight, '', 1, 'C', 0, 1, '', '', true, 0, false, true, 0);
-
-/* --- START LEGEND BLOCK ---*/
-//fixed elements: write north and texts 
-$fixedSpaceUsed = 0;
-if($pdf->config["showNorth"]) {
-	$northHeight = 13;
-	$pdf->writeNorth($x + 5, $pageHeight - $northHeight, $imageWidth);
-	$fixedSpaceUsed += $northHeight;
-}
-
-//fixed elements: write logo (46pt above bottom)
-if($pdf->config["showLogo"]) {
-	$logoHeight = 16;
-	$pdf->writeLogo('img/stacoloma.jpg', $x + 10, $pageHeight - $logoHeight - $fixedSpaceUsed);
-	$fixedSpaceUsed += $logoHeight;
-}
-
-//reduce the page break by the 46pt (if the legend doesn't fit, we must not write over logo and north)
-$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM + $fixedSpaceUsed * PDF_IMAGE_SCALE_RATIO);
-//dynamic elements: write Legend and Title
-$pdf->SetXY($x,$y); //return to the beginning of the legend to start writing dynamically
-if($title = $printData->map->title) $pdf->writeTitle($title, 15);
-if($pdf->config["showLegend"]) $pdf->writeLegend();
-/* --- END LEGEND BLOCK ---*/
+$pdf->buildPage();
 
 //Close and output PDF document
 if($pdf->config["directOutput"]) { // default is false

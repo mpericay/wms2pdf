@@ -38,7 +38,8 @@ function sendJson() {
         $.ajax({
             type: "POST",
             url: "print/print.php",
-            data: { printData: JSON.stringify(selectedJson)},
+            data: { printData: JSON.stringify(selectedJson),
+                	profile: "polinya"},
             contentType: "application/x-www-form-urlencoded",
             dataType: "json",
             success: function(data){

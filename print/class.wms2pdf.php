@@ -24,6 +24,9 @@ class wms2PDF extends TCPDF {
 	private $forcedScale = false;
 	private $epsg = 4326;
 	private $geographic = true;
+	public $pageOrientation = 'L';
+	public $pageSize = 'A4';
+	public $mapTitle = false;
 	public $config = array(
 		/* extra graphical parameters (the others are located in tcpdf_config.php) */
 		"boxGap"=> 5,
@@ -55,6 +58,67 @@ class wms2PDF extends TCPDF {
 		"coords"=> "Coordenades de la cantonada inferior\nesquerra del mapa: "
 	);
 	
+	public function buildPage() {
+		// add a page
+		$this->AddPage($this->pageOrientation, $this->pageSize);
+	
+		//only for landscape (legend on right)
+		$pageHeight = $this->getRemainingHeight();
+		$imageHeight = $pageHeight; 
+		$imageWidth = $pageHeight * $this->getRatio();
+	
+		//we need to pass image width and height to recalculate bbox
+		$this->recalculateBbox($imageHeight, $imageWidth);
+	
+		// the Image() method recognizes the alpha channel embedded on the image:
+		$this->writeMap($imageHeight, $imageWidth);
+		$this->setPageMark();
+	
+		//write the boxes
+		$this->SetLineStyle(array('color'=>array(50, 50, 50)));
+		$this->SetLineWidth(0.3);
+		// write the first cell (Map cell)
+		$this->MultiCell($imageWidth, $pageHeight, '', 1, 'J', 0, 0, '', '', true, 0, false, true, 0);
+	
+		// write the splitter
+		$this->MultiCell($this->config["boxGap"], $pageHeight, '', 0, 'J', 0, 0, '', '', false, 0, false, true, 0);
+	
+		//Get current write position: we will draw the legend from here
+		$x = $this->GetX();
+		$y = $this->GetY();
+	
+		// write the second cell
+		$this->MultiCell(0, $pageHeight, '', 1, 'C', 0, 1, '', '', true, 0, false, true, 0);
+		
+		$this->writeProfileExtraItems();
+	
+		/* --- START LEGEND BLOCK ---*/
+		//fixed elements: write north and texts 
+		$fixedSpaceUsed = 0;
+		if($this->config["showNorth"]) {
+			$northHeight = 13;
+			$this->writeNorth($x + 5, $pageHeight - $northHeight, $imageWidth);
+			$fixedSpaceUsed += $northHeight;
+		}
+	
+		//fixed elements: write logo (46pt above bottom)
+		if($this->config["showLogo"]) {
+			$logoHeight = 16;
+			$this->writeLogo('img/stacoloma.jpg', $x + 10, $pageHeight - $logoHeight - $fixedSpaceUsed);
+			$fixedSpaceUsed += $logoHeight;
+		}
+	
+		//reduce the page break by the 46pt (if the legend doesn't fit, we must not write over logo and north)
+		$this->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM + $fixedSpaceUsed * PDF_IMAGE_SCALE_RATIO);
+		//dynamic elements: write Legend and Title
+		$this->SetXY($x,$y); //return to the beginning of the legend to start writing dynamically
+
+		if($title = $this->mapTitle) $this->writeTitle($title, 15);
+		if($this->config["showLegend"]) $this->writeLegend();
+		/* --- END LEGEND BLOCK ---*/
+		return true;
+	}	
+		
 	public function overwriteConfig($options) {
 		if($options) $this->config = array_merge($this->config, array_intersect_key((array) $options, $this->config));
 		return true;
@@ -64,9 +128,12 @@ class wms2PDF extends TCPDF {
 		//whether size is sent, or we use default value
 		$this->size = array_key_exists("size", $params) ? $params->size : $this->size;
 		//whether epsg is sent, or we use default value
-		$this->epsg = array_key_exists("epsg", $params) ? $params->epsg : $this->epsg;		
+		$this->epsg = array_key_exists("epsg", $params) ? $params->epsg : $this->epsg;
+		//whether title is sent, or we use default value
+		$this->mapTitle = array_key_exists("title", $params) ? $params->title : $this->mapTitle;
 		//whether projected coordinates are sent, or we use default value
 		$this->geographic = array_key_exists("geographic", $params) ? $params->geographic : $this->geographic;
+		
 		//is there a forced scale? 
 		//TODO: we can't do it if geographic coordinates 
 		if(array_key_exists("scale", $params)) $this->forcedScale = $params->scale;
@@ -107,6 +174,11 @@ class wms2PDF extends TCPDF {
 		//TODO: 50 is hard-coded width for Progess
 		$this->Image($src, $x, $y, 50);
 	}
+	
+	public function writeProfileExtraItems() {
+		// to draw profile-specific items (labels, extra texts, ...) 
+		// code to be added inside profiles
+	}	
 	
 	/* draws a nice box with a north arrow, a reference system and the scale */
 	public function writeNorth($x, $y, $imageWidth) {
