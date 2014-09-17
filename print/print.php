@@ -33,8 +33,10 @@ if (isset($_REQUEST["pdfUrl"])) {
 if (isset($_REQUEST['profile'])) {
 	//Require class file
 	$profile = $_REQUEST['profile'];
-	require_once("profiles/class.".$profile.".php");
-	$pdf = new $profile(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+	if($profile != "default") {
+		require_once("profiles/class.".$profile.".php");
+		$pdf = new $profile(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+	}
 }
 
 // create new PDF document if no profile was set
