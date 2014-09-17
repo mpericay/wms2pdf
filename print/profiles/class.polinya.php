@@ -14,14 +14,24 @@
  */
 
 class polinya extends wms2PDF {
-
+	
 	public function writeProfileExtraItems() {
 	
 		//for Polinya: Planol sense valor normatiu
-		//$this->Text(60, 15, "Plànol sense valor normatiu , vàlid a efectes informatius", false, false, true, 0, 0, "L", false);
 		$this->SetFontSize(9);
 		$this->writeHTMLCell(83, 0, 115, 15, '<div style="background-color:#fff;color:black;">&nbsp;Plànol sense valor normatiu, vàlid a efectes informatius&nbsp;</div>');
 		
 	}
+	
+	public function setMapDimensions() {
+		//only for landscape (legend on right)
+		$this->mapHeight = $this->pageHeight; 
+		$this->mapWidth = $this->getTotalWidth();
+	}
+	
+	public function writeRightBlock() {
+		
+	}
+
 	
 }

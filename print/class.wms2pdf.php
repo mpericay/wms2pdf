@@ -19,11 +19,14 @@ class wms2PDF extends TCPDF {
 	
 	private $servers;
 	private $bbox;
-	private $ratio = 1;
-	private $size = 1024;
-	private $forcedScale = false;
-	private $epsg = 4326;
-	private $geographic = true;
+	protected $mapHeight;
+	protected $mapWidth;
+	protected $size = 1024;
+	protected $forcedScale = false;
+	protected $epsg = 4326;
+	protected $geographic = true;	
+	protected $pageHeight;
+	public $ratio = 1;
 	public $pageOrientation = 'L';
 	public $pageSize = 'A4';
 	public $mapTitle = false;
@@ -58,53 +61,65 @@ class wms2PDF extends TCPDF {
 		"coords"=> "Coordenades de la cantonada inferior\nesquerra del mapa: "
 	);
 	
+	public function setMapDimensions() {
+		//only for landscape (legend on right)
+		$this->mapHeight = $this->pageHeight; 
+		$this->mapWidth = $this->pageHeight;
+	}
+	
 	public function buildPage() {
 		// add a page
 		$this->AddPage($this->pageOrientation, $this->pageSize);
-	
-		//only for landscape (legend on right)
-		$pageHeight = $this->getRemainingHeight();
-		$imageHeight = $pageHeight; 
-		$imageWidth = $pageHeight * $this->getRatio();
+		
+		$this->pageHeight = $this->getRemainingHeight();
+		
+		$this->setMapDimensions();
 	
 		//we need to pass image width and height to recalculate bbox
-		$this->recalculateBbox($imageHeight, $imageWidth);
+		$this->recalculateBbox($this->mapHeight, $this->mapWidth);
 	
 		// the Image() method recognizes the alpha channel embedded on the image:
-		$this->writeMap($imageHeight, $imageWidth);
+		$this->writeMap($this->mapHeight, $this->mapWidth);
 		$this->setPageMark();
 	
 		//write the boxes
 		$this->SetLineStyle(array('color'=>array(50, 50, 50)));
 		$this->SetLineWidth(0.3);
 		// write the first cell (Map cell)
-		$this->MultiCell($imageWidth, $pageHeight, '', 1, 'J', 0, 0, '', '', true, 0, false, true, 0);
+		$this->MultiCell($this->mapWidth, $this->pageHeight, '', 1, 'J', 0, 0, '', '', true, 0, false, true, 0);
+		
+		$this->writeRightBlock();
+		
+		$this->writeProfileExtraItems();
 	
+		return true;
+	}	
+	
+	public function writeRightBlock() {
+		
 		// write the splitter
-		$this->MultiCell($this->config["boxGap"], $pageHeight, '', 0, 'J', 0, 0, '', '', false, 0, false, true, 0);
+		$this->MultiCell($this->config["boxGap"], $this->pageHeight, '', 0, 'J', 0, 0, '', '', false, 0, false, true, 0);
 	
 		//Get current write position: we will draw the legend from here
 		$x = $this->GetX();
 		$y = $this->GetY();
 	
 		// write the second cell
-		$this->MultiCell(0, $pageHeight, '', 1, 'C', 0, 1, '', '', true, 0, false, true, 0);
-		
-		$this->writeProfileExtraItems();
-	
+		$this->MultiCell(0, $this->pageHeight, '', 1, 'C', 0, 1, '', '', true, 0, false, true, 0);
+
 		/* --- START LEGEND BLOCK ---*/
 		//fixed elements: write north and texts 
 		$fixedSpaceUsed = 0;
 		if($this->config["showNorth"]) {
 			$northHeight = 13;
-			$this->writeNorth($x + 5, $pageHeight - $northHeight, $imageWidth);
+			$this->writeNorth($x + 5, $this->pageHeight - $northHeight, $this->mapWidth);
 			$fixedSpaceUsed += $northHeight;
 		}
 	
 		//fixed elements: write logo (46pt above bottom)
 		if($this->config["showLogo"]) {
 			$logoHeight = 16;
-			$this->writeLogo('img/stacoloma.jpg', $x + 10, $pageHeight - $logoHeight - $fixedSpaceUsed);
+			$this->writeLogo('img/stacoloma.jpg', $x + 10, $this->pageHeight - $logoHeight - $fixedSpaceUsed);
 			$fixedSpaceUsed += $logoHeight;
 		}
 	
@@ -115,9 +130,8 @@ class wms2PDF extends TCPDF {
 
 		if($title = $this->mapTitle) $this->writeTitle($title, 15);
 		if($this->config["showLegend"]) $this->writeLegend();
-		/* --- END LEGEND BLOCK ---*/
-		return true;
-	}	
+		/* --- END LEGEND BLOCK ---*/		
+	}
 		
 	public function overwriteConfig($options) {
 		if($options) $this->config = array_merge($this->config, array_intersect_key((array) $options, $this->config));
@@ -164,6 +178,11 @@ class wms2PDF extends TCPDF {
 		
 	public function getRemainingHeight() {
 		return ($this->getPageHeight() - $this->getBreakMargin() - $this->GetY());
+	}
+	
+	public function getTotalWidth() {
+		$margins = $this->getMargins();
+		return ($this->getPageWidth() - $margins['right'] - $margins['left']);
 	}
 	
 	public function getRatio() {
@@ -259,7 +278,7 @@ class wms2PDF extends TCPDF {
                 $layers[]=$servers[$i]->layers[$j]->name;
             }
             $wms = implode(",", $layers);*/
-			$this->Image($servers[$i]->url, PDF_MARGIN_LEFT, PDF_MARGIN_TOP, $height, $width, '', '', '', false, 1024);
+			$this->Image($servers[$i]->url, PDF_MARGIN_LEFT, PDF_MARGIN_TOP, $width, $height, '', '', '', false, 1024);
         }
 	}
 	
