@@ -16,11 +16,9 @@
 class polinya extends wms2PDF {
 	
 	public function writeProfileExtraItems() {
-	
 		//for Polinya: Planol sense valor normatiu
 		$this->SetFontSize(9);
-		$this->writeHTMLCell(83, 0, 115, 15, '<div style="background-color:#fff;color:black;">&nbsp;Plànol sense valor normatiu, vàlid a efectes informatius&nbsp;</div>');
-		
+		$this->writeHTMLCell(83, 0, 115, 15, '<div style="background-color:#fff;color:black;">&nbsp;Plànol sense valor normatiu, vàlid a efectes informatius&nbsp;</div>');		
 	}
 	
 }

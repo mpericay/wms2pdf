@@ -172,7 +172,7 @@ class wms2PDF extends TCPDF {
 			if(!$this->bbox) $this->bbox = correctBbox($bbox, $imageHeight, $imageWidth, $this->forcedScale, $this->geographic);
 			$servers[$i]->url = set_url_parameter($servers[$i]->url, "BBOX", join(",",$this->bbox));
 			$servers[$i]->url = set_url_parameter($servers[$i]->url, "WIDTH", $this->size);
-			$servers[$i]->url = set_url_parameter($servers[$i]->url, "HEIGHT", $this->size);
+			$servers[$i]->url = set_url_parameter($servers[$i]->url, "HEIGHT", $this->size * $imageHeight / $imageWidth);
         }
 	}
 		
@@ -273,13 +273,10 @@ class wms2PDF extends TCPDF {
 		
 		$servers = $this->servers;
 		for($i=0; $i<count($servers); $i++) {
-			/*$layers = array();
-            for($j=0; $j < sizeof($servers[$i]->layers); $j++) {
-                $layers[]=$servers[$i]->layers[$j]->name;
-            }
-            $wms = implode(",", $layers);*/
 			$this->Image($servers[$i]->url, PDF_MARGIN_LEFT, PDF_MARGIN_TOP, $width, $height, '', '', '', false, 1024);
+			//print_r($servers[$i]->url);
         }
+        //die();
 	}
 	
 	/* override error to output error messages */
