@@ -26,6 +26,7 @@ class wms2PDF extends TCPDF {
 	protected $epsg = 4326;
 	protected $geographic = true;	
 	protected $pageHeight;
+	protected $pageWidth;
 	public $ratio = 1;
 	public $pageOrientation = 'L';
 	public $pageSize = 'A4';
@@ -72,6 +73,7 @@ class wms2PDF extends TCPDF {
 		$this->AddPage($this->pageOrientation, $this->pageSize);
 		
 		$this->pageHeight = $this->getRemainingHeight();
+		$this->pageWidth = $this->getTotalWidth();
 		
 		$this->setMapDimensions();
 	
@@ -86,7 +88,7 @@ class wms2PDF extends TCPDF {
 		$this->SetLineStyle(array('color'=>array(50, 50, 50)));
 		$this->SetLineWidth(0.3);
 		// write the first cell (Map cell)
-		$this->MultiCell($this->mapWidth, $this->pageHeight, '', 1, 'J', 0, 0, '', '', true, 0, false, true, 0);
+		$this->MultiCell($this->mapWidth, $this->mapHeight, '', 1, 'J', 0, 0, '', '', true, 0, false, true, 0);
 		
 		$this->writeRightBlock();
 		
@@ -122,6 +124,8 @@ class wms2PDF extends TCPDF {
 			$this->writeLogo('img/stacoloma.jpg', $x + 10, $this->pageHeight - $logoHeight - $fixedSpaceUsed);
 			$fixedSpaceUsed += $logoHeight;
 		}
+		
+		$fixedSpaceUsed += 8; //margin
 	
 		//reduce the page break by the 46pt (if the legend doesn't fit, we must not write over logo and north)
 		$this->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM + $fixedSpaceUsed * PDF_IMAGE_SCALE_RATIO);
