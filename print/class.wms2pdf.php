@@ -172,7 +172,7 @@ class wms2PDF extends TCPDF {
 			if(!$this->bbox) $this->bbox = correctBbox($bbox, $imageHeight, $imageWidth, $this->forcedScale, $this->geographic);
 			$servers[$i]->url = set_url_parameter($servers[$i]->url, "BBOX", join(",",$this->bbox));
 			$servers[$i]->url = set_url_parameter($servers[$i]->url, "WIDTH", $this->size);
-			$servers[$i]->url = set_url_parameter($servers[$i]->url, "HEIGHT", $this->size * $imageHeight / $imageWidth);
+			$servers[$i]->url = set_url_parameter($servers[$i]->url, "HEIGHT", intval($this->size * $imageHeight / $imageWidth));
         }
 	}
 		
