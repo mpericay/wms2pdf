@@ -23,7 +23,7 @@ i prémer "cridar servei"
 <script src="print/examples/wiki.js"></script>
 <script>
 
-var profile = "polinya";
+var layout = "polinya";
 
 function getPDFLink(data) {
     if (data.error == 0) {
@@ -41,7 +41,7 @@ function sendJson() {
             type: "POST",
             url: "print/print.php",
             data: { printData: JSON.stringify(selectedJson),
-                	layout: profile},
+                	layout: layout},
             contentType: "application/x-www-form-urlencoded",
             dataType: "json",
             success: function(data){
@@ -66,15 +66,15 @@ $( document ).ready(function() {
      });
     $("#polinya1").click(function() {
         selectExample(json);
-        profile = "polinya";
+        layout = "polinya";
      });
     $("#polinya2").click(function() {
         selectExample(json2);
-        profile = "fullpage";
+        layout = "fullpage";
      });
     $("#wiki").click(function() {
         selectExample(json3); 
-        profile = "default";
+        layout = "default";
      });
     
 });

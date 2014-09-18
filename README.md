@@ -11,7 +11,8 @@ Geolocation is licensed under CC 3.0 license: http://creativecommons.org/license
 JSON params
 -----------
 
-WMS2PDF és una llibreria per imprimir serveis WMS a un fitxer PDF. Accepta el paràmetre 'printData' per POST que conté dades en format JSON que permeten definir multitud de paràmetres: títol, escala, projecció, llegendes ... Per començar el més senzill és consultar l'exemple a mcrit.htm i diversos exemples a la carpeta /examples però a continuació es descriuen els elements de l'estructura de l'arxiu JSON.
+WMS2PDF és una llibreria per imprimir serveis WMS a un fitxer PDF. Accepta dos paràmetres per POST. El paràmetre optatiu 'layout' que permet utilitzar una classe específica per a definir el mapa; i també
+el paràmetre 'printData' que conté dades en format JSON que permeten definir multitud de paràmetres: títol, escala, projecció, llegendes ... Per començar el més senzill és consultar l'exemple a mcrit.htm i diversos exemples a la carpeta /examples però a continuació es descriuen els elements de l'estructura de l'arxiu JSON.
 
 - "title": títol del mapa
 - "size": mida (en píxels) de la petició WMS. Com més gran, més qualitat d'imatge, però la petició consumeix més temps. I en cap cas cal excedir la mida màxima que accepta el servidor (per exemple, en el cas del de l'ICC, uns 4000px)
