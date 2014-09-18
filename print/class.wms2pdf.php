@@ -196,7 +196,7 @@ class wms2PDF extends TCPDF {
 	
 	public function writeProfileExtraItems() {
 		// to draw profile-specific items (labels, extra texts, ...) 
-		// code to be added inside profiles
+		// code to be added inside every layout class
 	}	
 	
 	/* draws a nice box with a north arrow, a reference system and the scale */

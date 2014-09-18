@@ -30,16 +30,21 @@ if (isset($_REQUEST["pdfUrl"])) {
     die();
 }
 
-if (isset($_REQUEST['profile'])) {
+//layout parameter
+if (isset($_REQUEST['layout'])) {
 	//Require class file
-	$profile = $_REQUEST['profile'];
-	if($profile != "default") {
-		require_once("profiles/class.".$profile.".php");
-		$pdf = new $profile(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+	$layout = $_REQUEST['layout'];
+	if($layout != "default") {
+		$file = "layouts/layout.".$layout.".php";
+		if(file_exists($file)) {
+			require_once($file);
+			$pdf = new $layout(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+		}
+		// if we couldn't instantiate layout class (file didn't exist) we will use default layout
 	}
 }
 
-// create new PDF document if no profile was set
+// create new PDF document if no or unexistant layout was passed
 if(!$pdf) $pdf = new wms2PDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
 // get JSON data
@@ -57,7 +62,7 @@ if (isset($_REQUEST['printData'])) {
 $pdf->SetCreator(PDF_CREATOR);
 $pdf->SetAuthor('WMS2PDF');
 $pdf->SetTitle('');
-$pdf->SetSubject('WMS Map print');
+$pdf->SetSubject('WMS2PDF Map print');
 $pdf->SetKeywords('PDF, PHP, WMS, map, print');
 
 // remove default header/footer
