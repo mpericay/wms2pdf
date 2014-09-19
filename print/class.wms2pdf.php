@@ -19,6 +19,7 @@ class wms2PDF extends TCPDF {
 	
 	private $servers;
 	private $bbox;
+	protected $currentLegend = false;
 	protected $mapHeight;
 	protected $mapWidth;
 	protected $size = 1024;
@@ -61,6 +62,24 @@ class wms2PDF extends TCPDF {
 		/* showCoords */
 		"coords"=> "Coordenades de la cantonada inferior\nesquerra del mapa: "
 	);
+		
+	public function loadConfig($params) {
+		//whether size is sent, or we use default value
+		$this->size = array_key_exists("size", $params) ? $params->size : $this->size;
+		//whether epsg is sent, or we use default value
+		$this->epsg = array_key_exists("epsg", $params) ? $params->epsg : $this->epsg;
+		//whether title is sent, or we use default value
+		$this->mapTitle = array_key_exists("title", $params) ? $params->title : $this->mapTitle;
+		//whether projected coordinates are sent, or we use default value
+		$this->geographic = array_key_exists("geographic", $params) ? $params->geographic : $this->geographic;
+		
+		//is there a forced scale? 
+		//TODO: we can't do it if geographic coordinates 
+		if(array_key_exists("scale", $params)) $this->forcedScale = $params->scale;
+		//we set the servers info and calculate bbox, width and height
+    	$this->setServers($params->servers);
+    	if(array_key_exists("config", $params)) $this->overwriteConfig($params->config);
+	}	
 	
 	public function setMapDimensions() {
 		//only for landscape (legend on right)
@@ -140,24 +159,6 @@ class wms2PDF extends TCPDF {
 	public function overwriteConfig($options) {
 		if($options) $this->config = array_merge($this->config, array_intersect_key((array) $options, $this->config));
 		return true;
-	}
-	
-	public function loadConfig($params) {
-		//whether size is sent, or we use default value
-		$this->size = array_key_exists("size", $params) ? $params->size : $this->size;
-		//whether epsg is sent, or we use default value
-		$this->epsg = array_key_exists("epsg", $params) ? $params->epsg : $this->epsg;
-		//whether title is sent, or we use default value
-		$this->mapTitle = array_key_exists("title", $params) ? $params->title : $this->mapTitle;
-		//whether projected coordinates are sent, or we use default value
-		$this->geographic = array_key_exists("geographic", $params) ? $params->geographic : $this->geographic;
-		
-		//is there a forced scale? 
-		//TODO: we can't do it if geographic coordinates 
-		if(array_key_exists("scale", $params)) $this->forcedScale = $params->scale;
-		//we set the servers info and calculate bbox, width and height
-    	$this->setServers($params->servers);
-    	if(array_key_exists("config", $params)) $this->overwriteConfig($params->config);
 	}	
 	
 	public function setServers($servers) {
@@ -244,7 +245,7 @@ class wms2PDF extends TCPDF {
 		$this->SetFontSize($size);
 	}	
 	
-	public function writeLegend() {
+	public function writeLegend($dontBreak = false) {
 	    $servers = $this->servers;
 		for($i=0; $i<count($servers); $i++) {
 			 if(isset($servers[$i]->layers)) {
@@ -257,20 +258,49 @@ class wms2PDF extends TCPDF {
 			 }
         }
 
-		$html = '';
+        $x = $this->GetX() + 5;
 		
-        for ($j=count($layers)-1; $j>=0; $j--) {
+		$startLegend = ($this->currentLegend == false) ? count($layers)-1 : $this->currentLegend;
+		
+        for ($j=$startLegend; $j>=0; $j--) {
         	$writeLegend = true;
+        	$imageSize = @getimagesize($legends[$j]);
         	if($this->config['ignoreLegendErrors']) {
         		//if legend URL doesn't exist, don't write it
-        		if(!@getimagesize($legends[$j])) $writeLegend = false;
+        		if(!$imageSize) $writeLegend = false;
+        	}
+        	// if height is bigger and will break page, stop writing
+        	//if($j ==1) die("size:".$imageSize[1]*80	/($imageSize[0]*PDF_IMAGE_SCALE_RATIO)." -- remaining:".$this->getRemainingHeight());
+        	if(!$dontBreak && ($imageSize[1]*50/($imageSize[0]*PDF_IMAGE_SCALE_RATIO)) > $this->getRemainingHeight()) {
+        		$this->currentLegend = $j;
+        		break; 
         	}
         	//if legend URL exists or we don't want to check, draw the name and legend
-        	if($writeLegend) $html .= $layers[$j].'<br><img src="'.$legends[$j].'"><br>';
+        	if($writeLegend) $html = $layers[$j].'<br><img src="'.$legends[$j].'"><br>';
+        	$this->writeHTMLCell(0, 0, $x, $this->GetY(), $html, 0, 1, 0, true, 'L', true);
+
         }
         
-        $this->writeHTMLCell(0, 0, $this->GetX() + 5, $this->GetY(), $html, 0, 0, 0, true, 'L', true);
-	}
+        //$this->writeHTMLCell(0, 0, $this->GetX() + 5, $this->GetY(), $html, 0, 0, 0, true, 'L', true);
+        //die("hdhddh".$j);
+
+        if($j > -1) $this->writeExtraPage();
+	}	
+	
+	public function writeExtraPage() {
+		$this->AddPage($this->pageOrientation, $this->pageSize);
+
+		//write the box
+		$this->MultiCell($this->pageWidth, $this->mapHeight, '', 1, 'J', 0, 0, '', '', true, 0, false, true, 0);
+		
+		$this->SetXY(20,10);
+		$this->writeTitle('Llegenda', 15);
+		$this->Ln(5);
+		
+		$this->setEqualColumns(3, 57);
+		$this->writeLegend(true);
+		
+	}	
 	
 	public function writeMap($height, $width) {
 		//$pdf->Image('http://mapcache.icc.cat/map/bases_noutm/service?FORMAT=image%2Fjpeg&EXCEPTIONS=application%2Fvnd.ogc.se_xml&SRS=EPSG%3A4326&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&LAYERS=topo&BBOX=2.17462439453%2C41.4216758916%2C2.23401560547%2C41.4810671025&WIDTH=1024&HEIGHT=1024', PDF_MARGIN_LEFT, PDF_MARGIN_TOP, $height, $width, '', '', '', false, 1024);

@@ -25,21 +25,6 @@ class fullpage extends wms2PDF {
 		
 	}
 	
-	public function writeExtraPage() {
-		$this->AddPage($this->pageOrientation, $this->pageSize);
-
-		//write the box
-		$this->MultiCell($this->pageWidth, $this->mapHeight, '', 1, 'J', 0, 0, '', '', true, 0, false, true, 0);
-		
-		$this->SetXY(20,10);
-		$this->writeTitle('Llegenda', 15);
-		$this->Ln(5);
-		
-		$this->setEqualColumns(3, 57);
-		$this->writeLegend();
-		
-	}
-	
 	public function writeProfileExtraItems() {
 		$this->writeExtraPage();
 	}
