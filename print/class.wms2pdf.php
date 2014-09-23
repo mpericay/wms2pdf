@@ -276,9 +276,9 @@ class wms2PDF extends TCPDF {
 		
 		$servers = $this->servers;
 		for($i=0; $i<count($servers); $i++) {
-			if($opacity = $servers[$i]->opacity) {
+			if(isset($servers[$i]->opacity)) {
 				// set specific opacity
-				$this->SetAlpha($opacity);
+				$this->SetAlpha($servers[$i]->opacity);
 			}
 			$this->Image($servers[$i]->url, PDF_MARGIN_LEFT, PDF_MARGIN_TOP, $width, $height, '', '', '', false, 1024);
 			
