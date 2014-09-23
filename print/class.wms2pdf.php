@@ -273,12 +273,17 @@ class wms2PDF extends TCPDF {
 	}
 	
 	public function writeMap($height, $width) {
-		//$pdf->Image('http://mapcache.icc.cat/map/bases_noutm/service?FORMAT=image%2Fjpeg&EXCEPTIONS=application%2Fvnd.ogc.se_xml&SRS=EPSG%3A4326&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&LAYERS=topo&BBOX=2.17462439453%2C41.4216758916%2C2.23401560547%2C41.4810671025&WIDTH=1024&HEIGHT=1024', PDF_MARGIN_LEFT, PDF_MARGIN_TOP, $height, $width, '', '', '', false, 1024);
 		
 		$servers = $this->servers;
 		for($i=0; $i<count($servers); $i++) {
+			if($opacity = $servers[$i]->opacity) {
+				// set specific opacity
+				$this->SetAlpha($opacity);
+			}
 			$this->Image($servers[$i]->url, PDF_MARGIN_LEFT, PDF_MARGIN_TOP, $width, $height, '', '', '', false, 1024);
-			//print_r($servers[$i]->url);
+			
+			// restore full opacity
+			$this->SetAlpha(1);
         }
         //die();
 	}
