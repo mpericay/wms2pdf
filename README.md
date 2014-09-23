@@ -19,7 +19,7 @@ el paràmetre 'printData' que conté dades en format JSON que permeten definir m
 - "epsg": codi EPSG de la projecció
 - "geographic": si són coordenades geogràfiques o projectades
 - "scale": escala a la que s'ha d'obrir el mapa (ignorant els paràmetres de servers->url)
-- "servers": array de les peticions WMS. L'aproximació és bottom-to-top: les primeres capes queden a sota de les posteriors. Per a fer-ho al màxim de senzill per al programador front-end, permet rebre la URL "tal qual" (inclòs el BBOX, el format, etc) i l'aplicatiu ja s'encarrega de parsejar els valors de la petició WMS. Si es vol llegenda, dins de cada "server" cal posar un array de "layers" amb el nom i la URL (estàtica o dinàmica) de la llegenda. 
+- "servers": array de les peticions WMS. L'aproximació és bottom-to-top: les primeres capes queden a sota de les posteriors. Per a fer-ho al màxim de senzill per al programador front-end, permet rebre la URL "tal qual" (inclòs el BBOX, el format, etc) i l'aplicatiu ja s'encarrega de parsejar els valors de la petició WMS. A més, pot rebre el paràmetre "opacity", que ajusta la transparència de la imatge. Si es vol llegenda, dins de cada "server" cal posar un array de "layers" amb el nom i la URL (estàtica o dinàmica) de la llegenda. 
 - "config": possibilitat de sobreescriure molts paràmetres de configuració, com si cal mostrar la llegenda, la fletxa de nord, la projecció ... se'n poden afegir més
 
 Exemple JSON:
@@ -52,7 +52,6 @@ Exemple JSON:
       "showEpsg": true,
       "showScale": true,
       "showLegend": true,
-      "showLogo": false,
       "boxGap": 3
     }
   }
