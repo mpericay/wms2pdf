@@ -14,12 +14,12 @@ Per veure impressió resultant a PDF prémer: <button type="button" id="go">Crid
 <br>
 Seleccionar un dels tres exemples
 <button type="button" id="polinya1">Polinya</button>
-<button type="button" id="polinya2">Polinya urbanisme</button>
+<button type="button" id="cerdanyola">Cerdanyola</button>
 <button type="button" id="wiki">Wikipedra</button>
 i prémer "cridar servei"
 <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
 <script src="print/examples/polinya.js"></script>
-<script src="print/examples/polinya2.js"></script>
+<script src="print/examples/cerdanyola.js"></script>
 <script src="print/examples/wiki.js"></script>
 <script>
 
@@ -68,9 +68,9 @@ $( document ).ready(function() {
         selectExample(json);
         layout = "polinya";
      });
-    $("#polinya2").click(function() {
+    $("#cerdanyola").click(function() {
         selectExample(json2);
-        layout = "fullpage";
+        layout = "default";
      });
     $("#wiki").click(function() {
         selectExample(json3); 
