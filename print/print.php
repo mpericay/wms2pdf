@@ -45,7 +45,7 @@ if (isset($_REQUEST['layout'])) {
 }
 
 // create new PDF document if no or unexistant layout was passed
-if(!$pdf) $pdf = new wms2PDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+if(!isset($pdf)) $pdf = new wms2PDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
 // get JSON data
 if (isset($_REQUEST['printData'])) {

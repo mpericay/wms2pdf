@@ -75,7 +75,7 @@ class GeoLocation {
 	protected function checkBounds() {
 		if ($this->radLat < self::$MIN_LAT || $this->radLat > self::$MAX_LAT ||
 				$this->radLon < self::$MIN_LON || $this->radLon > self::$MAX_LON)
-			throw new \Exception("Invalid Argument");
+			throw new Exception("Invalid Argument");
 	}
 
   /**
@@ -175,7 +175,7 @@ class GeoLocation {
    */
 	public function boundingCoordinates($distance, $unit_of_measurement) {
 		$radius = $this->getEarthsRadius($unit_of_measurement);
-		if ($radius < 0 || $distance < 0) throw new \Exception('Arguments must be greater than 0.');
+		if ($radius < 0 || $distance < 0) throw new Exception('Arguments must be greater than 0.');
 
 		// angular distance in radians on a great circle
 		$this->angular = $distance / $radius;
@@ -213,7 +213,7 @@ class GeoLocation {
 		elseif($u == 'kilometers' || $u == 'km')
 			return $radius = self::EARTHS_RADIUS_KM;
 
-		else throw new \Exception('You must supply a valid unit of measurement');
+		else throw new Exception('You must supply a valid unit of measurement');
 	}
 	/**
 	 *  Retrieves Geocoding information from Google
