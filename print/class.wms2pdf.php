@@ -7,8 +7,8 @@
  *
  * @author     Marti Pericay <marti@pericay.com>
  * @author     Mcrit <catala@mcrit.com>
- * @copyright  (c) 2014 by Marti Pericay and MCRIT
- * @license    http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License
+ * @copyright  (c) 2014-2015 by Marti Pericay and MCRIT
+ * @license    http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License (unless otherwise stated)
  * 
  * This program is free software. You can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
 class wms2PDF extends TCPDF {
 	
 	private $servers;
+	private $legends;
+	private $layers;
 	private $bbox;
 	protected $mapHeight;
 	protected $mapWidth;
@@ -133,7 +135,7 @@ class wms2PDF extends TCPDF {
 		$this->SetXY($x,$y); //return to the beginning of the legend to start writing dynamically
 
 		if($title = $this->mapTitle) $this->writeTitle($title, 15);
-		if($this->config["showLegend"]) $this->writeLegend();
+		if($this->config["showLegend"]) $this->writeLegend($this->getRemainingHeight());
 		/* --- END LEGEND BLOCK ---*/		
 	}
 		
@@ -164,7 +166,27 @@ class wms2PDF extends TCPDF {
 		
 		//TODO: instead of die, output error
 		if(!$servers) outputError("No WMS services provided in JSON POST data (printData->map->servers)");
-		$this->servers = $servers;
+		
+		// set legends and titles
+		for($i=0; $i<count($servers); $i++) {
+            // special WKT 
+			if($servers[$i]->type == "wkt") { 
+				// do special stuff
+				// create URL
+				$servers[$i]->url = "http://dev.geodata.es/wms56/polinya/servidor/wkt?FORMAT=image%2Fpng&TRANSPARENT=true&VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&STYLES=&EXCEPTIONS=application%2Fvnd.ogc.se_inimage&LAYERS=punts&SRS=EPSG%3A23031&BBOX=428349.0942365,4600330.8094567,430981.69698155,4601709.2878789&WIDTH=1492&HEIGHT=768";
+			}
+			$this->servers[$i] = $servers[$i];
+
+			// legends and titles
+			 if(isset($servers[$i]->layers)) {
+	             for($j=0; $j < count($servers[$i]->layers); $j++) {
+	             	if(isset($servers[$i]->layers[$j]->legend)) {
+		                $this->layers[]=$servers[$i]->layers[$j]->title;
+		                $this->legends[]=$servers[$i]->layers[$j]->legend;
+	             	}
+	             }
+			 }
+        }
 		
 		return true;
 	}
@@ -244,20 +266,12 @@ class wms2PDF extends TCPDF {
 		$this->SetFontSize($size);
 	}	
 	
-	public function writeLegend() {
-	    $servers = $this->servers;
-		for($i=0; $i<count($servers); $i++) {
-			 if(isset($servers[$i]->layers)) {
-	             for($j=0; $j < count($servers[$i]->layers); $j++) {
-	             	if(isset($servers[$i]->layers[$j]->legend)) {
-		                 $layers[]=$servers[$i]->layers[$j]->title;
-		                 $legends[]=$servers[$i]->layers[$j]->legend;
-	             	}
-	             }
-			 }
-        }
+	public function writeLegend($availableHeight = 0) {
+		$legends = $this->legends;
+	    $layers = $this->layers;
 
 		$html = '';
+		$height = 0;
 		
         for ($j=count($layers)-1; $j>=0; $j--) {
         	$writeLegend = true;
@@ -265,12 +279,40 @@ class wms2PDF extends TCPDF {
         		//if legend URL doesn't exist, don't write it
         		if(!@getimagesize($legends[$j])) $writeLegend = false;
         	}
+        	list($imageWidth, $imageHeight) = getimagesize($legends[$j]);
+        	$height += 5 + $imageHeight/PDF_IMAGE_SCALE_RATIO;
+        	if($availableHeight && ($height > $availableHeight)) {
+        		// no room for more legend
+        		array_splice($this->legends, -(count($layers) - $j - 1));
+        		array_splice($this->layers, -(count($layers) - $j - 1));
+        		$this->writeHTMLCell(0, 0, $this->GetX() + 5, $this->GetY(), $html, 0, 0, 0, true, 'L', true);
+        		$this->writeExtraPage();
+        		return;
+        	}
+        	
         	//if legend URL exists or we don't want to check, draw the name and legend
         	if($writeLegend) $html .= $layers[$j].'<br><img src="'.$legends[$j].'"><br>';
         }
         
         $this->writeHTMLCell(0, 0, $this->GetX() + 5, $this->GetY(), $html, 0, 0, 0, true, 'L', true);
 	}
+	
+	
+	public function writeExtraPage() {
+		$this->SetAutoPageBreak(FALSE);
+		$this->AddPage($this->pageOrientation, $this->pageSize);
+
+		//write the box
+		$this->MultiCell($this->pageWidth, $this->mapHeight, '', 1, 'J', 0, 0, '', '', true, 0, false, true, 0);
+		
+		$this->SetXY(20,10);
+		$this->writeTitle('Llegenda', 15);
+		$this->Ln(5);
+		
+		$this->setEqualColumns(3, 57);
+		$this->writeLegend();
+		
+	}	
 	
 	public function writeMap($height, $width) {
 		
@@ -280,12 +322,13 @@ class wms2PDF extends TCPDF {
 				// set specific opacity
 				$this->SetAlpha($servers[$i]->opacity);
 			}
+			if($servers[$i]->type == "wkt") {
+				$servers[$i]->url = $servers[$i]->url."&map_layer[1]=FEATURE+WKT+%22POINT%28429184+4600965%29%22+END";
+			}
 			$this->Image($servers[$i]->url, PDF_MARGIN_LEFT, PDF_MARGIN_TOP, $width, $height, '', '', '', false, 1024);
-			
 			// restore full opacity
 			$this->SetAlpha(1);
         }
-        //die();
 	}
 	
 	/* override error to output error messages */
