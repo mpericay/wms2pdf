@@ -175,7 +175,7 @@ class wms2PDF extends TCPDF {
 			if($servers[$i]->type == "wkt") { 
 				// do special stuff
 				// create URL
-				$servers[$i]->url = "http://dev.geodata.es/wms56/highlight/wkt/wkt?FORMAT=image%2Fpng&TRANSPARENT=true&VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&STYLES=&EXCEPTIONS=application%2Fvnd.ogc.se_inimage&SRS=EPSG%3A23031";
+				$servers[$i]->url = "http://dev.geodata.es/wms56/highlight/wkt/wkt?FORMAT=image%2Fpng&TRANSPARENT=true&VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&STYLES=&EXCEPTIONS=application%2Fvnd.ogc.se_inimage&SRS=EPSG%3A25831";
 			}
 			$this->servers[$i] = $servers[$i];
 
@@ -337,7 +337,8 @@ class wms2PDF extends TCPDF {
 		switch($type) {
 			case "point":
 			default:
-				$url = "&map_layer[1]=FEATURE+WKT+%22".urlencode($wkt)."%22+END";
+				//layer 0 (first one) for points
+				$url = "&map_layer[0]=FEATURE+WKT+%22".urlencode($wkt)."%22+END";
 				$url .= "&LAYERS=punts";
 				break;
 		}
