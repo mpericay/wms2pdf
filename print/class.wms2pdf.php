@@ -52,6 +52,8 @@ class wms2PDF extends TCPDF {
 		"showLegend"=>true,
 		/* show a personal text? */
 		"customText"=>false,
+		/* logo URL */
+		"logoUrl"=>"img/stacoloma.jpg",
 		/* if a legend fails, throw error or ignore the error? */
 		"ignoreLegendErrors"=>false
 	);
@@ -123,7 +125,7 @@ class wms2PDF extends TCPDF {
 		//fixed elements: write logo (46pt above bottom)
 		if($this->config["showLogo"]) {
 			$logoHeight = 16;
-			$this->writeLogo('img/stacoloma.jpg', $x + 10, $this->pageHeight - $logoHeight - $fixedSpaceUsed);
+			$this->writeLogo($this->config["logoUrl"], $x + 10, $this->pageHeight - $logoHeight - $fixedSpaceUsed);
 			$fixedSpaceUsed += $logoHeight;
 		}
 		
