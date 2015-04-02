@@ -175,8 +175,7 @@ class wms2PDF extends TCPDF {
 			if($servers[$i]->type == "wkt") { 
 				// do special stuff
 				// create URL
-				//$servers[$i]->url = "http://dev.geodata.es/wms56/polinya/servidor/wkt?FORMAT=image%2Fpng&TRANSPARENT=true&VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&STYLES=&EXCEPTIONS=application%2Fvnd.ogc.se_inimage&LAYERS=punts&SRS=EPSG%3A23031&BBOX=428349.0942365,4600330.8094567,430981.69698155,4601709.2878789&WIDTH=1492&HEIGHT=768";
-				$servers[$i]->url = "http://dev.geodata.es/wms56/polinya/servidor/wkt?FORMAT=image%2Fpng&TRANSPARENT=true&VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&STYLES=&EXCEPTIONS=application%2Fvnd.ogc.se_inimage&SRS=EPSG%3A23031";
+				$servers[$i]->url = "http://dev.geodata.es/wms56/highlight/wkt/wkt?FORMAT=image%2Fpng&TRANSPARENT=true&VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&STYLES=&EXCEPTIONS=application%2Fvnd.ogc.se_inimage&SRS=EPSG%3A23031";
 			}
 			$this->servers[$i] = $servers[$i];
 
@@ -342,6 +341,7 @@ class wms2PDF extends TCPDF {
 				$url .= "&LAYERS=punts";
 				break;
 		}
+		
 		return $url;
 	}
 	
