@@ -175,7 +175,9 @@ class wms2PDF extends TCPDF {
 			if($servers[$i]->type == "wkt") { 
 				// do special stuff
 				// create URL
-				$servers[$i]->url = "http://dev.geodata.es/wms56/highlight/wkt/wkt?FORMAT=image%2Fpng&TRANSPARENT=true&VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&STYLES=&EXCEPTIONS=application%2Fvnd.ogc.se_inimage&SRS=EPSG%3A25831";
+				if(!$servers[$i]->url) {
+					$servers[$i]->url = "http://dev.geodata.es/wms56/highlight/wkt/wkt?FORMAT=image%2Fpng&TRANSPARENT=true&VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&STYLES=&EXCEPTIONS=application%2Fvnd.ogc.se_inimage&SRS=EPSG%3A25831";
+				}
 			}
 			$this->servers[$i] = $servers[$i];
 
@@ -325,7 +327,7 @@ class wms2PDF extends TCPDF {
 				$this->SetAlpha($servers[$i]->opacity);
 			}
 			if($servers[$i]->type == "wkt" && $servers[$i]->wkt) {
-				$servers[$i]->url .= $this->writeWKT("point", $servers[$i]->wkt);
+				$servers[$i]->url .= $this->writeWKT($servers[$i]->ftype, $servers[$i]->wkt);
 			}
 			$this->Image($servers[$i]->url, PDF_MARGIN_LEFT, PDF_MARGIN_TOP, $width, $height, '', '', '', false, 1024);
 			// restore full opacity
@@ -335,11 +337,21 @@ class wms2PDF extends TCPDF {
 	
 	public function writeWKT($type, $wkt) {
 		switch($type) {
+			case "polygon":
+				//layer 2 (third one) for polygons
+				$url = "&map_layer[2]=FEATURE+WKT+%22".urlencode($wkt)."%22+END";
+				$url .= "&LAYERS=polygon";
+				break;			
+			case "line":
+				//layer 1 (second one) for lines
+				$url = "&map_layer[1]=FEATURE+WKT+%22".urlencode($wkt)."%22+END";
+				$url .= "&LAYERS=line";
+				break;
 			case "point":
 			default:
 				//layer 0 (first one) for points
 				$url = "&map_layer[0]=FEATURE+WKT+%22".urlencode($wkt)."%22+END";
-				$url .= "&LAYERS=punts";
+				$url .= "&LAYERS=point";
 				break;
 		}
 		
