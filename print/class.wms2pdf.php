@@ -53,7 +53,7 @@ class wms2PDF extends TCPDF {
 		/* show a personal text? */
 		"customText"=>false,
 		/* logo URL */
-		"logoUrl"=>"img/stacoloma.jpg",
+		"logoUrl"=>"img/cerdanyola.jpg",
 		/* if a legend fails, throw error or ignore the error? */
 		"ignoreLegendErrors"=>false
 	);
@@ -124,8 +124,8 @@ class wms2PDF extends TCPDF {
 	
 		//fixed elements: write logo (46pt above bottom)
 		if($this->config["showLogo"]) {
-			$logoHeight = 16;
-			$this->writeLogo($this->config["logoUrl"], $x + 10, $this->pageHeight - $logoHeight - $fixedSpaceUsed);
+			$logoHeight = 20;
+			$this->writeLogo($this->config["logoUrl"], $x + 12, $this->pageHeight - $logoHeight - $fixedSpaceUsed);
 			$fixedSpaceUsed += $logoHeight;
 		}
 		
@@ -238,7 +238,7 @@ class wms2PDF extends TCPDF {
 		//TODO: we can't print geographic coordinates
 		if($this->config["showScale"] && $scale = $this->getScale($imageWidth)) $this->Text($x + 10, $y + 8, $this->locale["scale"].$scale);
 		else if($this->config["showCoords"]) $this->Text($x + 10, $y + 8, $this->locale["coords"].$this->bbox[0].", ".$this->bbox[2]);
-		if($this->config["customText"]) $this->Text($x, $y + 16, $this->config["customText"]);
+		if($this->config["customText"]) $this->Text($x + 10, $y + 13, $this->config["customText"]);
 		//reset default font size
 		$this->SetFontSize($size);
 	}
@@ -278,7 +278,7 @@ class wms2PDF extends TCPDF {
 		$height = 0;
 		
         for ($j=count($layers)-1; $j>=0; $j--) {
-        	$writeLegend = true;
+        	$writeLegend = $legends[$j] ? true : false;
         	if($this->config['ignoreLegendErrors']) {
         		//if legend URL doesn't exist, don't write it
         		if(!@getimagesize($legends[$j])) $writeLegend = false;
