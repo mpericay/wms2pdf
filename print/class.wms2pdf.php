@@ -275,7 +275,7 @@ class wms2PDF extends TCPDF {
 	    $layers = $this->layers;
 
 		$html = '';
-		$height = 0;
+		$remainingHeight = $availableHeight;
 		
         for ($j=count($layers)-1; $j>=0; $j--) {
         	$writeLegend = $legends[$j] ? true : false;
@@ -284,8 +284,16 @@ class wms2PDF extends TCPDF {
         		if(!@getimagesize($legends[$j])) $writeLegend = false;
         	}
         	list($imageWidth, $imageHeight) = getimagesize($legends[$j]);
-        	$height += 5 + $imageHeight/PDF_IMAGE_SCALE_RATIO;
-        	if($availableHeight && ($height > $availableHeight)) {
+        	
+        	// this is VERY approximate
+        	$availableWidth = $this->pageWidth - $this->GetX();
+        	
+        	//big images
+        	if($availableWidth < $imageWidth/PDF_IMAGE_SCALE_RATIO) $imageHeight = $imageHeight / ($imageWidth/$availableWidth);
+
+        	$height = $imageHeight/PDF_IMAGE_SCALE_RATIO; 
+        	if($availableHeight && ($remainingHeight < $height)) {
+        		//outputError($height);
         		// no room for more legend
         		array_splice($this->legends, -(count($layers) - $j - 1));
         		array_splice($this->layers, -(count($layers) - $j - 1));
@@ -293,7 +301,7 @@ class wms2PDF extends TCPDF {
         		$this->writeExtraPage();
         		return;
         	}
-        	
+        	$remainingHeight -= $height;
         	//if legend URL exists or we don't want to check, draw the name and legend
         	if($writeLegend) $html .= $layers[$j].'<br><img src="'.$legends[$j].'"><br>';
         }
@@ -303,6 +311,7 @@ class wms2PDF extends TCPDF {
 	
 	
 	public function writeExtraPage() {
+		$this->SetAutoPageBreak(false);
 		$this->AddPage($this->pageOrientation, $this->pageSize);
 
 		//write the box
@@ -312,6 +321,7 @@ class wms2PDF extends TCPDF {
 		$this->writeTitle('Llegenda', 15);
 		$this->Ln(5);*/
 		
+		$this->setEqualColumns(3, 100);
 		$this->writeLegend();
 		
 	}	
