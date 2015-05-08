@@ -33,10 +33,6 @@ var json={
                 "title": "Cabina",
                 "legend": "http://oslo.geodata.es/db2p/polinya?LAYER=cabina&REQUEST=GetLegendGraphic&VERSION=1.1.1&FORMAT=image/png&SERVICE=WMS"
             }]
-        },
-		{
-            "name": "WKT",
-            "type": "wkt"
         }],
         "config": {
             "showNorth": true,
