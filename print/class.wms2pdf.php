@@ -13,7 +13,7 @@
  * This program is free software. You can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License.
- */
+ */ 
 
 class wms2PDF extends TCPDF {
 	
@@ -129,7 +129,7 @@ class wms2PDF extends TCPDF {
 			$fixedSpaceUsed += $logoHeight;
 		}
 		
-		$fixedSpaceUsed += 8; //margin
+		//$fixedSpaceUsed += 8; //margin
 	
 		//reduce the page break by the 46pt (if the legend doesn't fit, we must not write over logo and north)
 		$this->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM + $fixedSpaceUsed * PDF_IMAGE_SCALE_RATIO);
@@ -175,9 +175,8 @@ class wms2PDF extends TCPDF {
 			if($servers[$i]->type == "wkt") { 
 				// do special stuff
 				// create URL
-				if(!$servers[$i]->url) {
-					$servers[$i]->url = "http://dev.geodata.es/wms56/highlight/wkt/wkt?FORMAT=image%2Fpng&TRANSPARENT=true&VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&STYLES=&EXCEPTIONS=application%2Fvnd.ogc.se_inimage&SRS=EPSG%3A25831";
-				}
+				if(!$servers[$i]->url) $servers[$i]->url = "http://dev.geodata.es/wms56/highlight/wkt/wkt?FORMAT=image%2Fpng&TRANSPARENT=true&VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&STYLES=&EXCEPTIONS=application%2Fvnd.ogc.se_inimage&SRS=EPSG%3A25831";
+				
 			}
 			$this->servers[$i] = $servers[$i];
 
@@ -278,32 +277,30 @@ class wms2PDF extends TCPDF {
 		$remainingHeight = $availableHeight;
 		
         for ($j=count($layers)-1; $j>=0; $j--) {
-        	$writeLegend = $legends[$j] ? true : false;
-        	if($this->config['ignoreLegendErrors']) {
-        		//if legend URL doesn't exist, don't write it
-        		if(!@getimagesize($legends[$j])) $writeLegend = false;
-        	}
-        	list($imageWidth, $imageHeight) = getimagesize($legends[$j]);
-        	
-        	// this is VERY approximate
-        	$availableWidth = $this->pageWidth - $this->GetX();
-        	
-        	//big images
-        	if($availableWidth < $imageWidth/PDF_IMAGE_SCALE_RATIO) $imageHeight = $imageHeight / ($imageWidth/$availableWidth);
+      		if(@getimagesize($legends[$j])) {
+	        	list($imageWidth, $imageHeight) = getimagesize($legends[$j]);
+	        	
+	        	// this is VERY approximate
+	        	$availableWidth = $this->pageWidth - $this->GetX();
 
-        	$height = $imageHeight/PDF_IMAGE_SCALE_RATIO; 
-        	if($availableHeight && ($remainingHeight < $height)) {
-        		//outputError($height);
-        		// no room for more legend
-        		array_splice($this->legends, -(count($layers) - $j - 1));
-        		array_splice($this->layers, -(count($layers) - $j - 1));
-        		$this->writeHTMLCell(0, 0, $this->GetX() + 5, $this->GetY(), $html, 0, 0, 0, true, 'L', true);
-        		$this->writeExtraPage();
-        		return;
-        	}
-        	$remainingHeight -= $height;
-        	//if legend URL exists or we don't want to check, draw the name and legend
-        	if($writeLegend) $html .= $layers[$j].'<br><img src="'.$legends[$j].'"><br>';
+	        	//big images
+	        	if($availableWidth < $imageWidth/PDF_IMAGE_SCALE_RATIO) {
+	        		$imageHeight = $imageHeight / ($imageWidth/$availableWidth);
+	        	}
+	
+	        	$height = $imageHeight/PDF_IMAGE_SCALE_RATIO; 
+	        	if($availableHeight && ($remainingHeight < $height)) {
+	        		// no room for more legend
+	        		array_splice($this->legends, -(count($layers) - $j - 1));
+	        		array_splice($this->layers, -(count($layers) - $j - 1));
+	        		$this->writeHTMLCell(0, $availableHeight, $this->GetX() + 5, $this->GetY(), $html, 0, 0, 0, true, 'L', true);
+	        		$this->writeExtraPage();
+	        		return;
+	        	}
+	        	$remainingHeight -= $height;
+	        	//if legend URL exists or we don't want to check, draw the name and legend
+	        	$html .= $layers[$j].'<br><img src="'.$legends[$j].'"><br>';
+      		}
         }
         
         $this->writeHTMLCell(0, 0, $this->GetX() + 5, $this->GetY(), $html, 0, 0, 0, true, 'L', true);
@@ -336,11 +333,20 @@ class wms2PDF extends TCPDF {
 			}
 			if($servers[$i]->type == "wkt" && $servers[$i]->wkt) {
 				$servers[$i]->url .= $this->writeWKT($servers[$i]->ftype, $servers[$i]->wkt);
+			} else if ($servers[$i]->type == "ms" && $servers[$i]->ms) {
+				$servers[$i]->url .= $this->writeMSPoints($servers[$i]->ms);
 			}
 			$this->Image($servers[$i]->url, PDF_MARGIN_LEFT, PDF_MARGIN_TOP, $width, $height, '', '', '', false, 1024);
 			// restore full opacity
 			$this->SetAlpha(1);
         }
+	}
+	
+	public function writeMSPoints($points) {
+		//layer 0 (first one) for points
+		$url = "&map_layer[0]=FEATURE+POINTS+".$points."+END+END";
+		$url .= "&LAYERS=point";	
+		return $url;
 	}
 	
 	public function writeWKT($type, $wkt) {
@@ -359,6 +365,7 @@ class wms2PDF extends TCPDF {
 			default:
 				//layer 0 (first one) for points
 				$url = "&map_layer[0]=FEATURE+WKT+%22".urlencode($wkt)."%22+END";
+				//$url = "&map_layer[0]=FEATURE+POINTS+428313+4594388+END+END";
 				$url .= "&LAYERS=point";
 				break;
 		}
