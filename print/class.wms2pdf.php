@@ -290,10 +290,8 @@ class wms2PDF extends TCPDF {
 					if($availableWidth < $realWidth) {
 						$realHeight = $realHeight / ($realWidth/$availableWidth);
 					}
-		
-					$height = 3 + $realHeight; 
 
-					if($remainingHeight < $height) {
+					if($remainingHeight < $realHeight) {
 						// no room for more legend 
 						$alreadyDrawn = -(count($layers) - $j - 1);
 						if($alreadyDrawn) {
@@ -307,7 +305,7 @@ class wms2PDF extends TCPDF {
 					}
 				}
 				
-	        	$remainingHeight -= $height;
+	        	$remainingHeight -= $realHeight;
 	        	//if legend URL exists or we don't want to check, draw the name and legend
 	        	$html .= $layers[$j].'<br><img src="'.$legends[$j].'"><br>';
       		}
