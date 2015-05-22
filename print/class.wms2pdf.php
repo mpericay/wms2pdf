@@ -129,10 +129,10 @@ class wms2PDF extends TCPDF {
 			$fixedSpaceUsed += $logoHeight;
 		}
 		
-		//$fixedSpaceUsed += 8; //margin
+		$fixedSpaceUsed += 8; //margin
 	
 		//reduce the page break by the 46pt (if the legend doesn't fit, we must not write over logo and north)
-		$this->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM + $fixedSpaceUsed * PDF_IMAGE_SCALE_RATIO);
+		$this->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM + $fixedSpaceUsed);
 		//dynamic elements: write Legend and Title
 		$this->SetXY($x,$y); //return to the beginning of the legend to start writing dynamically
 
@@ -278,25 +278,35 @@ class wms2PDF extends TCPDF {
 		
         for ($j=count($layers)-1; $j>=0; $j--) {
       		if(@getimagesize($legends[$j])) {
-	        	list($imageWidth, $imageHeight) = getimagesize($legends[$j]);
-	        	
-	        	// this is VERY approximate
-	        	$availableWidth = $this->pageWidth - $this->GetX();
+				if($availableHeight) {
+					list($imageWidth, $imageHeight) = getimagesize($legends[$j]);
+					$realWidth = $imageWidth/PDF_IMAGE_SCALE_RATIO;
+					$realHeight = $imageHeight/PDF_IMAGE_SCALE_RATIO;
+					
+					// this is VERY approximate
+					$availableWidth = $this->pageWidth - $this->GetX();
 
-	        	//big images
-	        	if($availableWidth < $imageWidth/PDF_IMAGE_SCALE_RATIO) {
-	        		$imageHeight = $imageHeight / ($imageWidth/$availableWidth);
-	        	}
-	
-	        	$height = $imageHeight/PDF_IMAGE_SCALE_RATIO; 
-	        	if($availableHeight && ($remainingHeight < $height)) {
-	        		// no room for more legend
-	        		array_splice($this->legends, -(count($layers) - $j - 1));
-	        		array_splice($this->layers, -(count($layers) - $j - 1));
-	        		$this->writeHTMLCell(0, $availableHeight, $this->GetX() + 5, $this->GetY(), $html, 0, 0, 0, true, 'L', true);
-	        		$this->writeExtraPage();
-	        		return;
-	        	}
+					//big images
+					if($availableWidth < $realWidth) {
+						$realHeight = $realHeight / ($realWidth/$availableWidth);
+					}
+		
+					$height = 3 + $realHeight; 
+
+					if($remainingHeight < $height) {
+						// no room for more legend 
+						$alreadyDrawn = -(count($layers) - $j - 1);
+						if($alreadyDrawn) {
+							array_splice($this->legends, $alreadyDrawn);
+							array_splice($this->layers, $alreadyDrawn);
+						}
+						//outputError($this->legends);
+						$this->writeHTMLCell(0, $availableHeight, $this->GetX() + 5, $this->GetY(), $html, 0, 0, 0, true, 'L', true);
+						$this->writeExtraPage();
+						return;
+					}
+				}
+				
 	        	$remainingHeight -= $height;
 	        	//if legend URL exists or we don't want to check, draw the name and legend
 	        	$html .= $layers[$j].'<br><img src="'.$legends[$j].'"><br>';
